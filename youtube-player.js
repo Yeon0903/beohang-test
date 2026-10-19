@@ -47,7 +47,7 @@
   ready=false;report('유튜브 영상을 준비하고 있어요…',{open:true});watchLoading();
   try{
    player=new YT.Player(node,{height:'100%',width:'100%',videoId:activeId,playerVars:{playsinline:1,rel:0,enablejsapi:1,origin:location.origin},events:{
-    onReady(){ready=true;clearTimer();startProgress();try{player.setVolume(volume);if(muted)player.mute();if(requestedId){const id=requestedId;requestedId='';player.loadVideoById(id)}}catch(e){report('영상 시작 중 오류: '+e.message,{retry:true,open:true});return}report('영상이 시작되지 않으면 동영상의 ▶ 버튼을 눌러주세요.',{open:true})},
+    onReady(){ready=true;clearTimer();startProgress();try{player.setVolume(volume);if(muted)player.mute();if(requestedId){const id=requestedId;requestedId='';player.loadVideoById({videoId:id,startSeconds:pendingResumeSeconds||0});pendingResumeSeconds=0;}}catch(e){report('영상 시작 중 오류: '+e.message,{retry:true,open:true});return}report('영상이 시작되지 않으면 동영상의 ▶ 버튼을 눌러주세요.',{open:true})},
     onStateChange(e){if(e.data===YT.PlayerState.PLAYING)applyPendingResume();emitProgress();if(e.data===YT.PlayerState.PLAYING){report('');const el=document.getElementById('play');if(el)el.textContent='⏸'}else if(e.data===YT.PlayerState.PAUSED){const el=document.getElementById('play');if(el)el.textContent='▶'}else if(e.data===YT.PlayerState.ENDED){if(typeof autoAdvance==='function')autoAdvance()}},
     onError(e){clearTimer();const el=document.getElementById('play');if(el)el.textContent='▶';const msg={2:'영상 주소 형식에 문제가 있어요.',5:'브라우저에서 재생할 수 없는 영상 형식이에요.',100:'삭제되었거나 비공개 영상이에요.',101:'영상 게시자가 외부 재생을 허용하지 않았어요.',150:'영상 게시자가 외부 재생을 허용하지 않았어요.',153:'재생 요청에 필요한 출처 정보가 없어 유튜브가 차단했어요.'};report('유튜브 오류 '+e.data+' — '+(msg[e.data]||'재생이 차단됐어요.'),{retry:true,open:true})}
    }});
@@ -61,7 +61,7 @@
    if(changed){requestedId=id;window.dispatchEvent(new CustomEvent('beohang:progress',{detail:{seconds:0,duration:0}}));}
    if(!player){initialize();return}
    if(!ready){report('유튜브 플레이어를 준비하고 있어요…',{open:true});watchLoading();return}
-   try{requestedId='';player.loadVideoById(id);report('영상이 시작되지 않으면 동영상의 ▶ 버튼을 눌러주세요.',{open:true})}catch(e){report('재생 요청 실패: '+e.message,{retry:true,open:true})}
+   try{requestedId='';player.loadVideoById({videoId:id,startSeconds:pendingResumeSeconds||0});pendingResumeSeconds=0;report('영상이 시작되지 않으면 동영상의 ▶ 버튼을 눌러주세요.',{open:true})}catch(e){report('재생 요청 실패: '+e.message,{retry:true,open:true})}
   },
   setVolume(v){volume=Math.max(0,Math.min(100,Number(v)||0));muted=volume===0;try{if(player&&ready){player.setVolume(volume);if(muted)player.mute();else player.unMute()}}catch(e){}},
   toggleMute(){muted=!muted;try{if(player&&ready){if(muted)player.mute();else player.unMute()}}catch(e){}return muted},

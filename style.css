@@ -261,3 +261,22 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 .player-volume,.player-right{grid-column:3!important}
 @media(max-width:920px){.player-timeline #elapsedTime{left:auto!important;right:95px!important}.player-timeline #totalTime{left:auto!important;right:48px!important}}
 @media(max-width:650px){.player{grid-template-rows:1px 68px!important;min-height:75px!important}.player-timeline #elapsedTime{right:91px!important;bottom:12px!important;font-size:9px!important}.player-timeline #totalTime{right:47px!important;bottom:12px!important;font-size:9px!important}.player-right #playerStatus{display:none!important}}
+
+
+/* V2.1.1 – stable transport layout + timeline only during active sessions */
+#playerTimeline[hidden],#playerTime[hidden]{display:none!important}
+.player{position:fixed!important;grid-template-columns:minmax(155px,1fr) auto minmax(155px,1fr)!important;column-gap:14px!important}
+.player-time{grid-row:2!important;grid-column:2!important;position:relative!important;justify-self:end!important;align-self:center!important;display:flex!important;align-items:center;white-space:nowrap;gap:0!important;margin-left:12px!important;font-variant-numeric:tabular-nums;color:#64898d;font-size:12px;pointer-events:none!important;z-index:2}
+.player-time #elapsedTime,.player-time #totalTime{position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;min-width:0!important;width:auto!important;font-size:12px!important;color:#64898d!important;pointer-events:none!important}
+.player-time #totalTime::before{content:none!important}
+.player-timeline{grid-column:1/-1!important}
+.player-timeline[hidden]{display:none!important}
+.player-timeline #seekRange:disabled{pointer-events:none!important}
+.player-controls{justify-self:center!important}
+.player-volume{justify-self:end!important}
+@media(max-width:1150px){.player-time{font-size:10px}.player-time #elapsedTime,.player-time #totalTime{font-size:10px!important}}
+@media(max-width:650px){.player{grid-template-columns:minmax(84px,1fr) auto minmax(60px,1fr)!important}.player-time{margin-left:4px!important}.player-volume{display:none!important}.player-time #elapsedTime,.player-time #totalTime{font-size:9px!important}}
+/* Keep time outside fixed center transport cluster */
+.player-time{position:absolute!important;grid-column:auto!important;grid-row:auto!important;left:calc(50% + 125px)!important;bottom:30px!important;margin:0!important;justify-self:auto!important}
+@media(max-width:1150px){.player-time{left:calc(50% + 112px)!important}}
+@media(max-width:650px){.player-time{left:auto!important;right:8px!important;bottom:10px!important}.player-right{display:none!important}}
