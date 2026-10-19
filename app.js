@@ -281,10 +281,13 @@ function syncExpandedMedia(){
  $('expandedVideoMode').classList.toggle('selected',video);
  $('expandedArtworkMode').setAttribute('aria-pressed',String(!video));
  $('expandedVideoMode').setAttribute('aria-pressed',String(video));
+ const hasVideo=Boolean(current?.video);
  $('expandedCover').hidden=video;
- $('expandedVideoFrame').hidden=!video;
- if(video && !current?.video){$('expandedVideoFrame').innerHTML='<div class="expanded-no-video">🐟 영상이 등록된 노래를 선택해 주세요.</div>';return;}
- if(video && current?.video && window.beohangYT)window.beohangYT.mount();
+ // 유튜브 iframe을 숨기면 재생이 중단될 수 있어, 앨범 모드에서는 작은 영상으로 유지합니다.
+ $('expandedVideoFrame').hidden=!hasVideo && !video;
+ $('expandedVideoFrame').classList.toggle('album-video-mini',!video&&hasVideo);
+ if(video && !hasVideo){$('expandedVideoFrame').innerHTML='<div class="expanded-no-video">🐟 영상이 등록된 노래를 선택해 주세요.</div>';return;}
+ if(hasVideo && window.beohangYT)window.beohangYT.mount();
 }
 
 // 하단바의 재생 컨트롤이나 별도 버튼을 제외한 전체 여백으로 확장합니다.
@@ -300,8 +303,8 @@ expandBtn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.prev
 $('collapsePlayer').onclick=()=>{$('expandedPlayer').hidden=true;document.body.classList.remove('expanded-open');if(window.beohangYT)beohangYT.pause();};
 
 
-$('expandedArtworkMode').onclick=()=>{expandedMediaMode='art';if(window.beohangYT)beohangYT.pause();syncExpandedMedia()};
-$('expandedVideoMode').onclick=()=>{expandedMediaMode='video';syncExpandedMedia();if(current?.video&&window.beohangYT)beohangYT.playTrack(current.video)};
+$('expandedArtworkMode').onclick=()=>{expandedMediaMode='art';syncExpandedMedia()};
+$('expandedVideoMode').onclick=()=>{expandedMediaMode='video';syncExpandedMedia()};
 refreshShuffle();
 $('expandedArtist').onclick=()=>{$('expandedPlayer').hidden=true;runSearch(current?.singer)};
 $('expandedAlbum').onclick=()=>{$('expandedPlayer').hidden=true;runSearch(current?.album)};
