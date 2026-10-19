@@ -204,3 +204,6 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 .player-right{grid-column:3;grid-row:1;justify-self:end;max-width:42%}
 @media(max-width:950px){.player-right{display:none}.player-volume{justify-self:end}}
 @media(max-width:650px){.player-volume{gap:2px}.player-volume input{width:42px}.player-volume span{display:none}.player-volume button{padding:3px}}
+
+/* V2.0.3: visible player diagnostics */
+.playback-note{min-height:24px;text-align:center;font-size:12px;line-height:1.7;color:#407d86;overflow-wrap:anywhere;padding:5px 8px}.yt-diagnostic-btn,.yt-diagnostic-link{margin-left:8px;display:inline-block;color:#167f93;font-size:12px;background:#def6f2;border:1px solid #a6dfdb;padding:4px 7px;border-radius:8px;cursor:pointer;text-decoration:none}
