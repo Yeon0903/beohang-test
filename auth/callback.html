@@ -1,0 +1,22 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>버항 · SOOP 인증 확인</title><style>body{margin:0;background:#effaf9;color:#266c78;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh}.card{background:white;border:1px solid #d3ece9;border-radius:24px;padding:34px;max-width:440px;margin:20px;box-shadow:0 12px 40px #236e7822;text-align:center}a{color:#188c9e}</style></head><body><main class="card"><h1>🐠 버항</h1><h2>SOOP 인증 확인 중</h2><p id="message">잠시만 기다려 주세요…</p><a href="../">버항으로 돌아가기</a></main><script>
+(async()=>{
+  const text=document.getElementById('message');
+  const params=new URLSearchParams(location.search),code=params.get('code');
+  const state=params.get('state'),expected=sessionStorage.getItem('virhang_soop_oauth_state');
+  sessionStorage.removeItem('virhang_soop_oauth_state');
+  // Remove single-use code from browser history as soon as captured.
+  history.replaceState({},'',location.pathname);
+  const back=(result)=>location.replace('../?soop_test='+encodeURIComponent(result));
+  if(params.has('error')){text.textContent='SOOP 인증이 취소되었거나 허용되지 않았어요.';return;}
+  if(!code){text.textContent='SOOP에서 인증 코드를 전달하지 않았어요.';return;}
+  if(!expected||!state||state!==expected){text.textContent='안전 확인값(state)이 일치하지 않거나 SOOP에서 반환되지 않았어요. 인증 코드를 서버에 보내지 않았습니다. SOOP의 state 지원 여부를 확인해야 해요.';return;}
+  try{
+    const res=await fetch('https://hjvsbfphlnukmdkfbtsh.supabase.co/functions/v1/virhang-soop-auth',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})
+    });
+    const result=await res.json();
+    if(res.ok&&result.ok){text.textContent='SOOP 인증 코드 교환 성공! 버항으로 돌아갑니다.';setTimeout(()=>back('ok'),1100)}
+    else{text.textContent='인증 코드를 교환하지 못했어요. 등록된 Redirect URL과 서버 설정을 확인해 주세요.'}
+  }catch{ text.textContent='인증 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.'; }
+})();
+</script></body></html>

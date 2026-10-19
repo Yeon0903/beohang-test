@@ -43,7 +43,7 @@
 
 <dialog id="accountModal" class="account-dialog"><div class="account-shell"><div class="modal-head"><div><span class="pretitle">MY AQUARIUM ACCOUNT</span><h2>🐟 버항 계정 체험</h2></div><button type="button" id="accountClose" aria-label="닫기">✕</button></div>
 <p class="hint">현재는 실제 회원가입이 아닌 화면 체험판이에요. 여기 입력한 내용은 서버에 저장되지 않습니다.</p>
-<div id="accountWelcome"></div>
-<div class="account-form"><label>닉네임<input id="demoNickname" maxlength="20" placeholder="예: 어항탐험가" autocomplete="off"></label><label>역할 선택 <small>(관리자 승인 과정은 추후 연결)</small><select id="demoRole"><option value="viewer">🐠 시청자</option><option value="streamer">🎤 스트리머</option><option value="admin">🛡️ 관리자</option><option value="superadmin">👑 최고관리자</option></select></label><button class="primary full" id="demoLogin" type="button">이 역할로 체험 시작하기</button><button class="outline full" id="demoLogout" type="button">체험 로그아웃</button></div>
-<div class="account-permission" id="accountPermission"></div></div></dialog>
-<script src="app.js"></script><script src="youtube-player.js"></script></body></html>
+<div id="accountWelcome"></div><div class="soop-login-panel"><strong>🌊 SOOP 계정 연동 테스트</strong><p>SOOP 인증 코드가 발급되는지 확인하는 단계예요. 아직 버항 회원 로그인이나 권한은 연결되지 않아요.</p><button type="button" class="primary full" id="soopTestLogin">SOOP 계정으로 인증 테스트</button><p id="soopTestStatus" aria-live="polite"></p></div>
+<details class="legacy-demo"><summary>기존 계정·권한 체험판 열기 (실제 로그인 아님)</summary><div class="account-form"><label>닉네임<input id="demoNickname" maxlength="20" placeholder="예: 어항탐험가" autocomplete="off"></label><label>역할 선택 <small>(관리자 승인 과정은 추후 연결)</small><select id="demoRole"><option value="viewer">🐠 시청자</option><option value="streamer">🎤 스트리머</option><option value="admin">🛡️ 관리자</option><option value="superadmin">👑 최고관리자</option></select></label><button class="primary full" id="demoLogin" type="button">이 역할로 체험 시작하기</button><button class="outline full" id="demoLogout" type="button">체험 로그아웃</button></div>
+<div class="account-permission" id="accountPermission"></div></div></details></div></dialog>
+<script src="app.js"></script><script src="soop-auth.js"></script><script src="youtube-player.js"></script></body></html>

@@ -373,3 +373,6 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 #player button:not(:disabled),#player input[type="range"]:not(:disabled),#player a{cursor:pointer!important}
 #player button:disabled,#player input:disabled{cursor:default!important}
 #player .player-timeline,#player .player-time{cursor:default!important}
+
+/* V2.2 OAuth verification panel */
+.soop-login-panel{background:#eaf9f7;border:1px solid #bde9e4;border-radius:18px;padding:18px;margin:15px 0}.soop-login-panel strong{color:#147b8e}.soop-login-panel p{font-size:12px;color:#5a858d;line-height:1.6}.soop-login-panel button{margin-top:10px}.legacy-demo{margin-top:16px;padding-top:12px;border-top:1px solid #def1ef}.legacy-demo summary{cursor:pointer;color:#6c919b;font-size:12px}.legacy-demo .account-form{margin-top:12px}
