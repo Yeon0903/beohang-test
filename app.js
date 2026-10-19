@@ -35,7 +35,7 @@ function requireLogin(){if(isSignedIn())return true;document.getElementById('acc
 function render(){document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===selectedNav));const arr=filtered();const shown=selectedNav==='home'?arr.slice(0,4):arr;$('songs').innerHTML=shown.map(s=>`<article class="song-card"><div class="cover" style="${artBg(s)}">${artLayer(s)}<button class="cover-play" data-play="${esc(s.id)}" aria-label="${esc(s.title)} 선택">▶</button></div><div class="song-meta"><h3 title="${esc(s.title)}">${esc(s.title)}</h3><p>${esc(s.singer)} · ${esc(s.type)}</p><div class="song-bottom"><span class="tags"><span class="tag main-tag">${esc(s.genre)}</span>${s.details.map(g=>`<span class="tag detail-tag">${esc(g)}</span>`).join('')}</span><button type="button" class="song-more" data-track-menu="${esc(s.id)}" aria-label="${esc(s.title)} 더보기" title="곡 메뉴">⋯</button>${isSignedIn()?`<button class="playlist-add-mini" data-add-playlist="${esc(s.id)}" title="플레이리스트에 담기" aria-label="${esc(s.title)} 플레이리스트에 담기">＋</button><button class="love ${likes.has(s.id)?'on':''}" data-like="${esc(s.id)}" aria-label="좋아요">${likes.has(s.id)?'♥':'♡'}</button>`:''}</div></div></article>`).join('');$('empty').hidden=!!arr.length; $('empty').style.display=arr.length?'none':'';$('searchCount').textContent=selectedNav==='search'?arr.length:0;$('songTitle').textContent=selectedNav==='home'?'🫧 최근 등록된 노래':selectedNav==='songs'?'🎵 모든 노래 탐색':query?'🔎 검색 결과':'🐚 새로운 노래를 발견해요';const top=[...all()].sort((a,b)=>b.views-a.views).slice(0,5);$('rank').innerHTML=top.map((s,i)=>`<div class="rank-row"><span class="rank-no">${i+1}</span><span class="rank-thumb" style="${artBg(s)}">${artLayer(s)}</span><span class="rank-name"><b>${esc(s.title)}</b><small>${esc(s.singer)}</small></span><span class="rank-val">▷ ${num(s.views)}</span>${isSignedIn()?`<button class="rank-add" data-add-playlist="${esc(s.id)}" aria-label="플레이리스트에 담기">＋</button>`:''}<button class="song-more" data-track-menu="${esc(s.id)}" aria-label="곡 메뉴">⋯</button><button class="love" data-play="${esc(s.id)}" aria-label="곡 선택">▶</button></div>`).join('');renderStreamers()}
 function notice(msg){$('notice').textContent=msg;$('notice').hidden=false;$('notice').scrollIntoView({behavior:'smooth',block:'nearest'})}
 function openVideo(s){if(location.protocol==='file:'){alert('유튜브 재생은 ZIP에 포함된 시작하기.bat 파일로 실행해 주세요.\n주소가 http://localhost 로 시작해야 합니다.');return;}if(!s?.video){if(window.beohangYT)beohangYT.stop();return;}expandedMediaMode='art';expandPlayer();syncExpandedMedia();if(window.beohangYT)beohangYT.playTrack(s.video);}
-function choose(s){if(!s)return;s=enrichTrack(s);if(!queue.some(t=>t.id===s.id)){queue=[];queueIndex=-1;}current=s;$('playerMore').hidden=false;$('playerMore').setAttribute('data-track-menu',s.id);applyArtwork($('playerArt'),s);$('playerName').textContent=s.title;$('playerSinger').textContent=s.singer;$('playerSinger').disabled=false;$('playerStatus').textContent=[s.genre,...(s.details||[]),s.type].join(' · ');$('play').textContent='▶';syncPlayerExtras();updateExpandedPlayer();openVideo(s)}
+function choose(s,restoreOnly=false){if(!s)return;if(!restoreOnly){resumePendingSeconds=0;lastListeningSeconds=0;}s=enrichTrack(s);if(!queue.some(t=>t.id===s.id)){queue=[];queueIndex=-1;}current=s;$('playerMore').hidden=false;$('playerMore').setAttribute('data-track-menu',s.id);applyArtwork($('playerArt'),s);$('playerName').textContent=s.title;$('playerSinger').textContent=s.singer;$('playerSinger').disabled=false;$('playerStatus').textContent=[s.genre,...(s.details||[]),s.type].join(' · ');$('play').textContent='▶';syncPlayerExtras();updateExpandedPlayer();if(!restoreOnly)openVideo(s);saveListeningState()}
 function navigate(name){$('expandedPlayer').hidden=true;document.body.classList.remove('expanded-open');if(name==='my'&&!requireLogin())return;if(name!=='search'){query='';$('search').value='';}selectedNav=name;document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));if(name==='groups'){selectedGroup=null;selectedGroupMember=null;}if(name==='rank')sort='views';else if(name==='home')sort='new';else if(name==='my')sort='new';else if(name==='streamers'){genre='전체';detail='전체';$('detailFilter').value='전체';streamerSelected=null;renderStreamers()}else if(name==='songs'){genre='전체';detail='전체';$('detailFilter').value='전체'}$('sort').value=sort;document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.genre===genre));render();(name==='streamers'?$('streamersView'):name==='groups'?$('groupsView'):name==='my'?$('myLibrary'):(name==='rank'?$('rankView'):name==='home'?$('homeIntro'):document.querySelector('.quick'))).scrollIntoView({behavior:'smooth',block:'start'})}
 function videoId(raw){try{const u=new URL(raw);const h=u.hostname.toLowerCase();if(h==='youtu.be'||h==='www.youtu.be')return u.pathname.split('/')[1]||null;if(['youtube.com','www.youtube.com','m.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(h)){if(u.pathname==='/watch')return u.searchParams.get('v');const m=u.pathname.match(/^\/(?:shorts|embed|live)\/([^/]+)/);return m?.[1]||null}}catch{}return null}
 
@@ -108,7 +108,7 @@ function renderGroups(){
  const songMap=new Map();for(const s of selected.members){for(const song of s.songs)songMap.set(song.id,song)}const tracks=[...songMap.values()];
  $('groupDetail').innerHTML=`<div class="profile-header"><div class="profile-icon" style="background:${selected.color}">🪸</div><div><span class="pretitle">GROUP & CREW</span><h2>${esc(selected.name)}</h2><p>멤버 ${selected.members.length}명 · 등록된 노래 ${tracks.length}곡</p></div></div><h3 class="group-subtitle">🐬 함께하는 스트리머</h3><div class="group-members">${selected.members.map(s=>`<button class="member-pill" data-open-member="${esc(s.name)}">${esc(s.icon)} ${esc(s.name)}</button>`).join('')}</div><div class="group-list-header"><h3>🎵 소속 멤버 노래 모아듣기</h3><button class="primary" data-play-group="${esc(selected.name)}" ${tracks.length?'':'disabled'}>▶ 전체 이어듣기</button></div>${profileSongs(tracks)}`;
 }
-function startQueue(tracks){if(!tracks.length){notice('등록된 노래가 없어요.');return;}queue=[...tracks];queueIndex=0;choose(queue[0]);if(shuffleEnabled)nextShuffleOrder();}
+function startQueue(tracks){if(!tracks.length){notice('등록된 노래가 없어요.');return;}queue=[...tracks];queueIndex=0;choose(queue[0]);if(shuffleEnabled)nextShuffleOrder();saveListeningState();}
 $('groupsSearch').addEventListener('input',e=>{groupsSearch=e.target.value.trim().toLowerCase();selectedGroup=null;selectedGroupMember=null;renderGroups()});
 document.addEventListener('click',e=>{
  const g=e.target.closest('[data-view-group]');if(g){selectedGroup=g.dataset.viewGroup;selectedGroupMember=null;renderGroups();$('groupDetail').scrollIntoView({behavior:'smooth',block:'start'});return;}
@@ -121,9 +121,9 @@ document.addEventListener('click',e=>{
 
 document.addEventListener('click',e=>{const like=e.target.closest('[data-like]');if(like){if(!requireLogin())return;const id=like.dataset.like;likes.has(id)?likes.delete(id):likes.add(id);localStorage.setItem(userDataKey('likes'),JSON.stringify([...likes]));render();return}const play=e.target.closest('[data-play]');if(play){choose(all().find(s=>s.id===play.dataset.play));return}const nav=e.target.closest('[data-nav]');if(nav)navigate(nav.dataset.nav);const cat=e.target.closest('[data-genre]');if(cat){genre=cat.dataset.genre;selectedNav='songs';document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b===cat));render()}});
 $('detailFilter').addEventListener('change',e=>{detail=e.target.value;render()});
-$('searchForm').addEventListener('submit',e=>{e.preventDefault();const term=$('search').value.trim();if(!term){$('search').focus();return;}$('expandedPlayer').hidden=true;document.body.classList.remove('expanded-open');query=term.toLowerCase();genre='전체';detail='전체';$('detailFilter').value='전체';sort='new';$('sort').value='new';selectedNav='search';document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.genre==='전체'));render();$('searchSummary').scrollIntoView({behavior:'smooth',block:'start'});});$('backHome').addEventListener('click',()=>{navigate('home');window.scrollTo({top:0,behavior:'smooth'});});$('sort').addEventListener('change',e=>{sort=e.target.value;render()});$('explore').onclick=()=>navigate('songs');$('shuffleHero').onclick=()=>{const arr=filtered().length?filtered():all();if(!arr.length)return;choose(arr[Math.floor(Math.random()*arr.length)])};$('shuffle').onclick=()=>{shuffleEnabled=!shuffleEnabled;if(shuffleEnabled)nextShuffleOrder();else{shuffleOrder=[];shufflePosition=-1;}refreshShuffle();};$('favoritesBtn').onclick=()=>navigate('my');$('profile').onclick=()=>navigate('my');$('add').onclick=()=>$('modal').showModal();$('close').onclick=()=>$('modal').close();$('closeVideo').onclick=()=>{$('videoModal').close();$('videoArea').innerHTML=''};$('videoModal').addEventListener('close',()=>{$('videoArea').innerHTML=''});
+$('searchForm').addEventListener('submit',e=>{e.preventDefault();const term=$('search').value.trim();if(!term){$('search').focus();return;}$('expandedPlayer').hidden=true;document.body.classList.remove('expanded-open');query=term.toLowerCase();genre='전체';detail='전체';$('detailFilter').value='전체';sort='new';$('sort').value='new';selectedNav='search';document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.genre==='전체'));render();$('searchSummary').scrollIntoView({behavior:'smooth',block:'start'});});$('backHome').addEventListener('click',()=>{navigate('home');window.scrollTo({top:0,behavior:'smooth'});});$('sort').addEventListener('change',e=>{sort=e.target.value;render()});$('explore').onclick=()=>navigate('songs');$('shuffleHero').onclick=()=>{const arr=filtered().length?filtered():all();if(!arr.length)return;choose(arr[Math.floor(Math.random()*arr.length)])};$('shuffle').onclick=()=>{shuffleEnabled=!shuffleEnabled;if(shuffleEnabled)nextShuffleOrder();else{shuffleOrder=[];shufflePosition=-1;}refreshShuffle();saveListeningState();};$('favoritesBtn').onclick=()=>navigate('my');$('profile').onclick=()=>navigate('my');$('add').onclick=()=>$('modal').showModal();$('close').onclick=()=>$('modal').close();$('closeVideo').onclick=()=>{$('videoModal').close();$('videoArea').innerHTML=''};$('videoModal').addEventListener('close',()=>{$('videoArea').innerHTML=''});
 $('addForm').addEventListener('submit',async e=>{e.preventDefault();const url=$('newUrl').value.trim(),id=videoId(url);if(!id||!/^[a-zA-Z0-9_-]{11}$/.test(id)){alert('올바른 유튜브 영상 주소를 입력해 주세요.');return}let artwork='';try{const file=$('newArtworkFile').files?.[0];const artworkUrl=$('newArtworkUrl').value.trim();artwork=file?await fileToDataUrl(file):(artworkUrl||thumbnailFromVideo(id));}catch(err){alert('앨범 이미지를 읽는 중 문제가 생겼어요. 다른 이미지로 다시 시도해 주세요.');return;}const track=enrichTrack({id:'u'+Date.now(),title:$('newTitle').value.trim(),singer:$('newSinger').value.trim(),genre:$('newGenre').value,details:[...document.querySelectorAll('input[name="detailGenre"]:checked')].map(c=>c.value),type:$('newType').value,album:$('newAlbum').value.trim(),symbol:'🎤',bg:'linear-gradient(135deg,#b3eceb,#dfcef9)',views:0,likes:0,video:id,artwork:artwork,description:$('newDescription').value.trim(),lyrics:$('newLyrics').value.trim(),originalUrl:$('newOriginalUrl').value.trim()});custom.unshift(track);localStorage.setItem('beohang_v1_tracks',JSON.stringify(custom));$('modal').close();$('addForm').reset();genre='전체';detail='전체';$('detailFilter').value='전체';query='';$('search').value='';sort='new';selectedNav='home';document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.genre==='전체'));render();notice('🐠 영상과 앨범 이미지가 이 브라우저에 등록됐어요! 이미지가 없으면 유튜브 썸네일을 자동으로 사용해요.')});
-$('play').onclick=()=>{if(!current){notice('먼저 원하는 노래 카드의 ▶ 버튼을 눌러주세요.');return;}if(!current.video){notice('이 곡은 샘플이라 실제 영상이 없어요.');return;}if(window.beohangYT)beohangYT.toggle();else openVideo(current)};$('next').onclick=()=>{if(shuffleEnabled){chooseFromShuffle(1);return;}if(queue.length){queueIndex=(queueIndex+1)%queue.length;choose(queue[queueIndex]);return;}const a=filtered(),i=a.findIndex(s=>s.id===current?.id);choose(a[(i+1)%a.length]||all()[0])};$('prev').onclick=()=>{if(shuffleEnabled){chooseFromShuffle(-1);return;}if(queue.length){queueIndex=(queueIndex-1+queue.length)%queue.length;choose(queue[queueIndex]);return;}const a=filtered(),i=a.findIndex(s=>s.id===current?.id);choose(a[(i-1+a.length)%a.length]||all()[0])};
+$('play').onclick=()=>{if(resumePendingSeconds>0&&current?.video){window.beohangYT?.resumeFrom(resumePendingSeconds);resumePendingSeconds=0;openVideo(current);return;}if(!current){notice('먼저 원하는 노래 카드의 ▶ 버튼을 눌러주세요.');return;}if(!current.video){notice('이 곡은 샘플이라 실제 영상이 없어요.');return;}if(window.beohangYT)beohangYT.toggle();else openVideo(current)};$('next').onclick=()=>{if(shuffleEnabled){chooseFromShuffle(1);return;}if(queue.length){queueIndex=(queueIndex+1)%queue.length;choose(queue[queueIndex]);return;}const a=filtered(),i=a.findIndex(s=>s.id===current?.id);choose(a[(i+1)%a.length]||all()[0])};$('prev').onclick=()=>{if(shuffleEnabled){chooseFromShuffle(-1);return;}if(queue.length){queueIndex=(queueIndex-1+queue.length)%queue.length;choose(queue[queueIndex]);return;}const a=filtered(),i=a.findIndex(s=>s.id===current?.id);choose(a[(i-1+a.length)%a.length]||all()[0])};
 function autoAdvance(){
  if(shuffleEnabled){if(!shuffleOrder.length)nextShuffleOrder();if(shufflePosition+1>=shuffleOrder.length){$('play').textContent='▶';return;}chooseFromShuffle(1);return;}
  const list=queue.length?queue:all().map(normalizeTrack);
@@ -252,8 +252,8 @@ loadPersonalLibrary();
 let expandedTab='queue';
 let expandedMediaMode='art';
 let shuffleEnabled=false,shuffleOrder=[],shufflePosition=-1;
-function nextShuffleOrder(){const base=[...new Set((queue.length?queue:all().map(normalizeTrack)).map(t=>t.id))];const rest=base.filter(id=>id!==current?.id);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}shuffleOrder=[current?.id,...rest].filter(Boolean);shufflePosition=0;}
-function chooseFromShuffle(step){if(!shuffleOrder.length)nextShuffleOrder();if(!shuffleOrder.length)return;const next=shufflePosition+step;if(next>=shuffleOrder.length){return;}if(next<0)return;shufflePosition=next;const song=all().map(normalizeTrack).find(s=>s.id===shuffleOrder[shufflePosition]);if(song)choose(song);}
+function nextShuffleOrder(){const base=[...new Set((queue.length?queue:all().map(normalizeTrack)).map(t=>t.id))];const rest=base.filter(id=>id!==current?.id);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}shuffleOrder=[current?.id,...rest].filter(Boolean);shufflePosition=0;saveListeningState();}
+function chooseFromShuffle(step){if(!shuffleOrder.length)nextShuffleOrder();if(!shuffleOrder.length)return;const next=shufflePosition+step;if(next>=shuffleOrder.length){return;}if(next<0)return;shufflePosition=next;const song=all().map(normalizeTrack).find(s=>s.id===shuffleOrder[shufflePosition]);if(song)choose(song);saveListeningState();}
 function refreshShuffle(){const b=$('shuffle');b.classList.toggle('shuffle-on',shuffleEnabled);b.setAttribute('aria-pressed',String(shuffleEnabled));b.title=shuffleEnabled?'셔플 켜짐 · 누르면 끄기':'셔플 꺼짐 · 누르면 켜기';b.textContent=shuffleEnabled?'🔀':'🔀';}
 
 function runSearch(term){
@@ -367,7 +367,7 @@ function enqueueTrack(s,immediate){
   const pos=immediate?shufflePosition+1:shuffleOrder.length;
   shuffleOrder.splice(pos,0,s.id);
  }
- updateExpandedPlayer();notice(immediate?'다음에 재생할 곡으로 추가했어요.':'현재 재생목록에 추가했어요.');
+ updateExpandedPlayer();saveListeningState();notice(immediate?'다음에 재생할 곡으로 추가했어요.':'현재 재생목록에 추가했어요.');
 }
 document.addEventListener('click',e=>{
  const trigger=e.target.closest('[data-track-menu]');
@@ -393,3 +393,79 @@ window.addEventListener('resize',closeTrackMenu);
 
 /* Volume control bootstrap: video player created asynchronously */
 (function(){const slider=document.getElementById('volumeRange'),mute=document.getElementById('volumeMute'),val=document.getElementById('volumeValue');if(!slider||!mute)return;let last=65;try{const saved=Number(localStorage.getItem('beohang-volume'));if(Number.isFinite(saved)&&saved>=0&&saved<=100)last=saved}catch{}slider.value=last;val.textContent=last+'%';mute.textContent=last?'🔊':'🔇';function apply(n){n=Number(n);slider.value=n;val.textContent=n+'%';mute.textContent=n?'🔊':'🔇';window.beohangYT?.setVolume(n);try{localStorage.setItem('beohang-volume',String(n))}catch{}}slider.addEventListener('input',()=>apply(slider.value));mute.addEventListener('click',e=>{e.stopPropagation();if(+slider.value){last=+slider.value;apply(0)}else apply(last||65)});setTimeout(()=>apply(slider.value),500)})();
+
+// V2.0.8: playback timeline driven by the YouTube player API.
+(()=>{
+ const seek=document.getElementById('seekRange');
+ const elapsed=document.getElementById('elapsedTime');
+ const total=document.getElementById('totalTime');
+ let duration=0,dragging=false;
+ const fmt=seconds=>{const n=Math.max(0,Math.floor(Number(seconds)||0));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};
+ const update=(seconds,d)=>{
+   duration=d;
+   total.textContent=fmt(duration);
+   seek.disabled=duration<=0;
+   if(!dragging){elapsed.textContent=fmt(seconds);seek.value=duration>0?String(Math.round(Math.min(1,seconds/duration)*1000)):'0'}
+   seek.style.setProperty('--seek-pct',(duration>0?Number(seek.value)/10:0)+'%');
+ };
+ window.addEventListener('beohang:progress',e=>{const {seconds,duration:d}=e.detail||{};update(seconds||0,d||0)});
+ seek.addEventListener('pointerdown',()=>{dragging=true});
+ seek.addEventListener('input',()=>{dragging=true;elapsed.textContent=fmt(Number(seek.value)*duration/1000);seek.style.setProperty('--seek-pct',Number(seek.value)/10+'%')});
+ seek.addEventListener('change',()=>{if(duration>0)window.beohangYT?.seek(Number(seek.value)*duration/1000);dragging=false});
+ seek.addEventListener('pointerup',()=>{dragging=false});
+ document.getElementById('playerTimeline').addEventListener('click',e=>e.stopPropagation());
+})();
+
+
+/* V2.1.0 — remember the last track, play queue, shuffle state and resume timestamp.
+   Nothing autoplays on page load; browser playback must be initiated by a click. */
+const LISTENING_KEY='beohang_listening_v210';
+let lastListeningSeconds=0;
+let resumePendingSeconds=0;
+let lastListeningPersistAt=0;
+function saveListeningState(){
+ if(!current)return;
+ try{
+  localStorage.setItem(LISTENING_KEY,JSON.stringify({
+   id:current.id,queueIds:queue.map(x=>x.id),queueIndex,
+   shuffleEnabled,shuffleOrder:[...shuffleOrder],shufflePosition,
+   seconds:Math.max(0,Number(lastListeningSeconds)||0),
+   mediaMode:expandedMediaMode,updatedAt:Date.now()
+  }));
+ }catch(err){console.warn('재생 기록 저장 실패',err)}
+}
+function recoverListeningState(){
+ try{
+  const raw=localStorage.getItem(LISTENING_KEY);if(!raw)return;
+  const data=JSON.parse(raw);if(!data||typeof data.id!=='string')return;
+  const tracks=all().map(normalizeTrack);const byId=new Map(tracks.map(t=>[t.id,t]));
+  const saved=byId.get(data.id);if(!saved)return;
+  queue=Array.isArray(data.queueIds)?data.queueIds.map(id=>byId.get(id)).filter(Boolean):[];
+  queueIndex=queue.findIndex(t=>t.id===saved.id);
+  if(queueIndex<0)queueIndex=-1;
+  shuffleEnabled=data.shuffleEnabled===true;
+  shuffleOrder=Array.isArray(data.shuffleOrder)?data.shuffleOrder.filter(id=>byId.has(id)):[];
+  shufflePosition=Number.isInteger(data.shufflePosition)?data.shufflePosition:-1;
+  if(shufflePosition<0||shufflePosition>=shuffleOrder.length)shufflePosition=-1;
+  expandedMediaMode=data.mediaMode==='video'?'video':'art';
+  lastListeningSeconds=Number.isFinite(+data.seconds)?Math.max(0,+data.seconds):0;
+  resumePendingSeconds=lastListeningSeconds;
+  choose(saved,true);
+  refreshShuffle();
+  $('expandedPlayer').hidden=true;document.body.classList.remove('expanded-open');
+  const t=Math.floor(lastListeningSeconds),minutes=Math.floor(t/60),secs=String(t%60).padStart(2,'0');
+  $('elapsedTime').textContent=minutes+':'+secs;
+  $('playerName').title='이전 재생곡 — ▶를 누르면 '+minutes+':'+secs+'부터 다시 재생합니다.';
+ }catch(err){console.warn('이전 재생 기록 불러오기 실패',err)}
+}
+window.addEventListener('beohang:progress',e=>{
+ if(!current)return;
+ const seconds=Number(e.detail?.seconds),duration=Number(e.detail?.duration);
+ if(!Number.isFinite(seconds)||seconds<0||!Number.isFinite(duration)||duration<=0)return;
+ // Keep the restored resume point until playback really starts, then store live progress.
+ if(resumePendingSeconds>0)return;
+ lastListeningSeconds=seconds;
+ if(Date.now()-lastListeningPersistAt>1800){lastListeningPersistAt=Date.now();saveListeningState()}
+});
+window.addEventListener('pagehide',saveListeningState);
+recoverListeningState();
