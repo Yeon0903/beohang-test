@@ -3,6 +3,20 @@
  'use strict';
  let player=null, ready=false, activeId='', requestedId='', volume=65, muted=false;
  let apiFailed=false, loadingTimer=null;
+ // 유튜브 주소/ID를 모두 11자리 영상 ID로 통일합니다.
+ function normalizeVideoId(value){
+   const raw=String(value??'').trim();
+   if(/^[A-Za-z0-9_-]{11}$/.test(raw))return raw;
+   try{
+     const url=new URL(raw);const host=url.hostname.toLowerCase().replace(/^www\./,'');
+     let id='';
+     if(host==='youtu.be')id=url.pathname.split('/')[1]||'';
+     else if(['youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com'].includes(host)){
+       id=url.pathname==='/watch'?(url.searchParams.get('v')||''):(url.pathname.match(/^\/(?:shorts|embed|live|v)\/([^/]+)/)?.[1]||'');
+     }
+     return /^[A-Za-z0-9_-]{11}$/.test(id)?id:'';
+   }catch{return ''}
+ }
  const frame=()=>document.getElementById('expandedVideoFrame');
  const notice=()=>document.getElementById('videoPlaybackNotice');
  const originalUrl=()=>activeId?'https://www.youtube.com/watch?v='+encodeURIComponent(activeId):'';
@@ -20,6 +34,7 @@
  function initialize(){
   const target=frame();
   if(!target||!activeId)return;
+  if(!normalizeVideoId(activeId)){report('등록된 영상 주소가 올바르지 않아요. 유튜브 공유 링크를 다시 확인해 주세요.',{open:false});return;}
   if(player)return;
   if(!window.YT||typeof YT.Player!=='function'){report('유튜브 재생 모듈을 불러오는 중이에요…',{open:true});watchLoading();return}
   target.replaceChildren();const node=document.createElement('div');node.id='beohangYoutubePlayer';node.style.cssText='width:100%;height:100%';target.appendChild(node);
@@ -35,7 +50,8 @@
  const state={
   reset(){clearTimer();ready=false;const old=player;player=null;try{old?.destroy()}catch(e){};const t=frame();if(t)t.replaceChildren()},
   mount(){initialize()},
-  playTrack(id){if(!id)return;const changed=activeId!==id;activeId=id;
+  validate:normalizeVideoId,
+  playTrack(id){const normalized=normalizeVideoId(id);if(!normalized){report('영상 ID가 잘못되었습니다. 유튜브 동영상 주소를 다시 등록해 주세요.');return;}id=normalized;const changed=activeId!==id;activeId=id;
    if(changed)requestedId=id;
    if(!player){initialize();return}
    if(!ready){report('유튜브 플레이어를 준비하고 있어요…',{open:true});watchLoading();return}
