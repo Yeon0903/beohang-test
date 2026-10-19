@@ -35,8 +35,8 @@
    btn.textContent=verified?'SOOP 다시 인증하기':'SOOP 계정으로 계속하기';
    logout.hidden=!verified;
    if(!verified){
-     if(intro)intro.textContent='SOOP 계정으로 간편하게 버항 인증을 진행해 보세요.';
-     if(disclaimer)disclaimer.textContent='현재는 인증 테스트 단계예요. 회원별 저장과 권한은 아직 연동되지 않았어요.';
+    if(intro)intro.textContent='SOOP 계정으로 간편하게 버항 인증을 진행해 보세요.';
+    if(disclaimer)disclaimer.textContent='현재는 인증 테스트 단계예요. 회원별 저장과 권한은 아직 연동되지 않았어요.';
    }
    if(verified){
      if(intro)intro.textContent='SOOP 인증이 정상적으로 확인되었어요. 현재는 회원 식별·로그인 세션을 연결하기 전 테스트 단계예요.';

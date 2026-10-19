@@ -30,7 +30,7 @@ function fileToDataUrl(file){return new Promise((resolve,reject)=>{if(!file){res
 
 function normalizeTrack(s){if(Array.isArray(s.details))return s;let old=s.genre||'K-POP';if(['발라드','록','댄스','랩','힙합','R&B','재즈','어쿠스틱','기타'].includes(old))return {...s,genre:'K-POP',details:[old]};return {...s,details:[]}}
 function filtered(){let arr=all().map(normalizeTrack).filter(s=>(genre==='전체'||s.genre===genre)&&(detail==='전체'||s.details.includes(detail))&&(!query||`${s.title} ${s.singer} ${s.album||''} ${s.genre} ${s.details.join(' ')} ${s.type}`.toLowerCase().includes(query)));if(selectedNav==='my')arr=arr.filter(s=>likes.has(s.id));if(sort==='views')arr.sort((a,b)=>b.views-a.views);if(sort==='likes')arr.sort((a,b)=>b.likes-a.likes);return arr}
-function isSignedIn(){return false} // Server member sessions are not implemented yet
+function isSignedIn(){return false} // Until verified server-backed SOOP member sessions exist
 function requireLogin(){if(isSignedIn())return true;document.getElementById('accountModal')?.showModal();return false}
 function render(){document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===selectedNav));const arr=filtered();const shown=selectedNav==='home'?arr.slice(0,4):arr;$('songs').innerHTML=shown.map(s=>`<article class="song-card"><div class="cover" style="${artBg(s)}">${artLayer(s)}<button class="cover-play" data-play="${esc(s.id)}" aria-label="${esc(s.title)} 선택">▶</button></div><div class="song-meta"><h3 title="${esc(s.title)}">${esc(s.title)}</h3><p>${esc(s.singer)} · ${esc(s.type)}</p><div class="song-bottom"><span class="tags"><span class="tag main-tag">${esc(s.genre)}</span>${s.details.map(g=>`<span class="tag detail-tag">${esc(g)}</span>`).join('')}</span><button type="button" class="song-more" data-track-menu="${esc(s.id)}" aria-label="${esc(s.title)} 더보기" title="곡 메뉴">⋯</button>${isSignedIn()?`<button class="playlist-add-mini" data-add-playlist="${esc(s.id)}" title="플레이리스트에 담기" aria-label="${esc(s.title)} 플레이리스트에 담기">＋</button><button class="love ${likes.has(s.id)?'on':''}" data-like="${esc(s.id)}" aria-label="좋아요">${likes.has(s.id)?'♥':'♡'}</button>`:''}</div></div></article>`).join('');$('empty').hidden=!!arr.length; $('empty').style.display=arr.length?'none':'';$('searchCount').textContent=selectedNav==='search'?arr.length:0;$('songTitle').textContent=selectedNav==='home'?'🫧 최근 등록된 노래':selectedNav==='songs'?'🎵 모든 노래 탐색':query?'🔎 검색 결과':'🐚 새로운 노래를 발견해요';const top=[...all()].sort((a,b)=>b.views-a.views).slice(0,5);$('rank').innerHTML=top.map((s,i)=>`<div class="rank-row"><span class="rank-no">${i+1}</span><span class="rank-thumb" style="${artBg(s)}">${artLayer(s)}</span><span class="rank-name"><b>${esc(s.title)}</b><small>${esc(s.singer)}</small></span><span class="rank-val">▷ ${num(s.views)}</span>${isSignedIn()?`<button class="rank-add" data-add-playlist="${esc(s.id)}" aria-label="플레이리스트에 담기">＋</button>`:''}<button class="song-more" data-track-menu="${esc(s.id)}" aria-label="곡 메뉴">⋯</button><button class="love" data-play="${esc(s.id)}" aria-label="곡 선택">▶</button></div>`).join('');renderStreamers()}
 function notice(msg){$('notice').textContent=msg;$('notice').hidden=false;$('notice').scrollIntoView({behavior:'smooth',block:'nearest'})}
@@ -141,7 +141,7 @@ if(!Array.isArray(playlists))playlists=[];
 playlists=playlists.filter(p=>p&&typeof p.name==='string'&&Array.isArray(p.ids)).map(p=>({...p,ids:p.ids.filter(id=>typeof id==='string')}));
 // 체험판 전용: 닉네임을 임시 사용자 식별자로 삼아 이 브라우저 안에서만 자료를 분리합니다.
 // 실제 공개 서비스에서는 닉네임이 아닌 서버에서 발급한 고유 사용자 ID를 사용해야 합니다.
-function demoAccountName(){return null} // No self-entered usernames
+function demoAccountName(){return null}
 function userDataKey(kind){const name=demoAccountName();return name?'beohang_demo_v154_'+encodeURIComponent(name)+'_'+kind:'beohang_demo_v154_guest_'+kind}
 function loadPersonalLibrary(){
  if(!isSignedIn()){likes=new Set();streamerFavs=new Set();playlists=[];selectedPlaylist=null;return;}
@@ -216,29 +216,23 @@ const oldFavClickRefresh=()=>{if(selectedNav==='my')renderLibrary();};
 document.addEventListener('click',e=>{if(e.target.closest('[data-sfav],[data-like]'))setTimeout(oldFavClickRefresh,0);});
 loadPersonalLibrary();
 
-// V2.3: SOOP-only login surface; no fake roles or self-assigned administrator.
+// V2.3.1 — SOOP-only authentication preview. No arbitrary role selection.
 (()=>{
  const el=id=>document.getElementById(id);
  sessionStorage.removeItem('beohang_role_demo');
- const welcome=el('accountWelcome');
- const entry=el('accountEntry');
- function refreshLogin(){
-   const verified=sessionStorage.getItem('virhang_soop_verified_test_v222')==='yes';
-   if(welcome)welcome.innerHTML='';
-   if(entry){
-     entry.textContent=verified?'SOOP 인증 확인됨 · 테스트':'SOOP 로그인';
-     entry.classList.remove('signed');
-   }
-   if(el('add'))el('add').hidden=true;
-   const save=document.querySelector('.player-save');
-   if(save)save.hidden=true;
+ function update(){
+  const verified=sessionStorage.getItem('virhang_soop_verified_test_v222')==='yes';
+  const entry=el('accountEntry');
+  if(entry){entry.textContent=verified?'SOOP 인증 확인됨 · 테스트':'SOOP 로그인';entry.classList.remove('signed')}
+  if(el('accountWelcome'))el('accountWelcome').textContent='';
+  if(el('add'))el('add').hidden=true;
+  const save=document.querySelector('.player-save');if(save)save.hidden=true;
  }
- entry.onclick=()=>{refreshLogin();el('accountModal').showModal()};
+ el('accountEntry').onclick=()=>{update();el('accountModal').showModal()};
  el('accountClose').onclick=()=>el('accountModal').close();
- window.addEventListener('virhang:auth-test-changed',refreshLogin);
- refreshLogin();
+ window.addEventListener('virhang:auth-test-changed',update);
+ update();
 })();
-;
 
 // V1.8: bottom player expands into a music-focused view. Sample tracks do not have audio.
 let expandedTab='queue';
