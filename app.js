@@ -227,7 +227,7 @@ loadPersonalLibrary();
   el('accountPermission').innerHTML=`<h3>${roleNames[role]||'🐚 체험 전'} 권한 미리보기</h3><ul>${items.map(s=>`<li>${s}</li>`).join('')}</ul><small>현재는 권한별 UI 시연만 제공하며, 실제 회원 정보·승인 기록은 없습니다.</small>`;
  }
  function refresh(){
-  el('accountEntry').textContent=account?`${roleNames[account.role]} · ${account.name}`:'👤 로그인 · 계정 체험';
+  el('accountEntry').textContent=account?`${roleNames[account.role]} · ${account.name}`:'SOOP 로그인';
   el('accountEntry').classList.toggle('signed',!!account);
   el('accountWelcome').innerHTML=account?`<div class="account-status">반가워요, <strong>${account.name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong> 님!<br>${roleNames[account.role]} 역할로 화면을 체험하고 있어요.</div>`:'<div class="account-status">아직 체험 계정이 없어요. 아래에서 역할을 선택해 보세요.</div>';
   el('demoNickname').value=account?.name||'';el('demoRole').value=account?.role||'viewer';el('demoLogout').hidden=!account;

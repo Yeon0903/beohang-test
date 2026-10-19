@@ -391,3 +391,7 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 .vir-auth-status:empty{display:none}.vir-auth-status:not(:empty){background:#eafaf6;border:1px solid #c8ebe3;color:#246e7a;border-radius:10px;padding:12px!important;font-size:13px!important;line-height:1.5;margin:14px 0!important}
 .account-dialog .legacy-demo{margin-top:14px;color:#78959a;font-size:12px}
 .account-dialog .legacy-demo summary{cursor:pointer}
+
+/* V2.2.2: OAuth verification status UX (not a member session) */
+.vir-soop-logout{margin-top:8px!important;font-size:12px!important}
+.vir-auth-status:not(:empty){border-radius:10px;background:#fff;padding:9px 11px}
