@@ -22,7 +22,7 @@
  });
  const result=new URLSearchParams(location.search).get('soop_test');
  if(result){
-   status.textContent=result==='ok'?'SOOP 인증 코드 교환 테스트 성공! (버항 로그인은 아직 연결되지 않았어요)':result==='state'?'인증 검증값(state)이 돌아오지 않았어요. SOOP 연동 방식 확인이 필요해요.':'SOOP 인증을 확인하지 못했어요. 인증 페이지 안내를 확인해 주세요.';
+   status.textContent=result==='ok'?'SOOP 계정 인증에 성공했어요! 현재는 연동 테스트 단계라 버항 회원 로그인 상태는 아직 만들어지지 않았어요.':result==='state'?'인증 검증값(state)이 돌아오지 않았어요. SOOP 연동 방식 확인이 필요해요.':'SOOP 인증을 확인하지 못했어요. 인증 페이지 안내를 확인해 주세요.';
    document.getElementById('accountModal')?.showModal();
    const clean=new URL(location.href);clean.searchParams.delete('soop_test');history.replaceState({},'',clean);
  }
