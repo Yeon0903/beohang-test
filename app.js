@@ -310,7 +310,7 @@ function syncExpandedMedia(){
 // 하단바의 재생 컨트롤이나 별도 버튼을 제외한 전체 여백으로 확장합니다.
 $('player').addEventListener('click',e=>{
  // 곡 정보, 컨트롤, 음량은 별도 동작. 나머지 빈 영역만 재생 화면을 엽니다.
- if(e.target.closest('.player-song,.player-controls,.player-volume'))return;
+ if(e.target.closest('.player-art,.player-info,.player-controls,.player-volume,.player-timeline,.player-time'))return;
  if(e.target.closest('button,a,input,select,textarea,[data-track-menu]'))return;
  expandPlayer();
 });

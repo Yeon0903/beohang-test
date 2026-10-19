@@ -280,3 +280,89 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 .player-time{position:absolute!important;grid-column:auto!important;grid-row:auto!important;left:calc(50% + 125px)!important;bottom:30px!important;margin:0!important;justify-self:auto!important}
 @media(max-width:1150px){.player-time{left:calc(50% + 112px)!important}}
 @media(max-width:650px){.player-time{left:auto!important;right:8px!important;bottom:10px!important}.player-right{display:none!important}}
+
+/* V2.1.2 - explicit four-column layout, no overlapping controls */
+.player{
+  display:grid!important;
+  grid-template-columns:minmax(170px,1fr) auto 112px minmax(175px,1fr)!important;
+  grid-template-rows:1px 70px!important;
+  column-gap:14px!important;
+  align-items:center!important;
+  padding:5px 30px 8px 245px!important;
+  box-sizing:border-box!important;
+  cursor:pointer!important;
+}
+.player-timeline{
+  grid-column:1/-1!important;grid-row:1!important;
+  left:0!important;right:0!important;top:0!important;
+  width:100%!important;
+}
+.player-song{
+  grid-row:2!important;grid-column:1!important;
+  justify-self:start!important;align-self:center!important;
+  width:max-content!important;max-width:100%!important;
+  cursor:default!important;
+}
+.player-controls{
+  grid-row:2!important;grid-column:2!important;
+  justify-self:center!important;align-self:center!important;
+  display:flex!important;gap:12px!important;white-space:nowrap!important;
+}
+.player-time{
+  position:static!important;
+  grid-row:2!important;grid-column:3!important;
+  left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;
+  justify-self:center!important;align-self:center!important;
+  margin:0!important;display:flex!important;
+  font-size:12px!important;white-space:nowrap!important;
+  width:112px!important;justify-content:center!important;
+  pointer-events:none!important;
+}
+.player-time #elapsedTime,.player-time #totalTime,
+.player-time .time-divider{
+  font-size:12px!important;
+  position:static!important;
+  line-height:1!important;
+  color:#527f88!important;
+  display:inline!important;
+  transform:none!important;
+  margin:0!important;
+  padding:0!important;
+}
+.player-volume{
+  position:static!important;
+  grid-row:2!important;grid-column:4!important;
+  justify-self:center!important;align-self:center!important;
+  display:flex!important;align-items:center!important;
+  gap:6px!important;margin:0 38px 0 0!important;
+  width:max-content!important;max-width:100%!important;
+  z-index:2!important;
+}
+.player-volume input{flex:0 0 95px!important;width:95px!important;min-width:65px!important;}
+.player-volume span{min-width:34px!important;text-align:right!important;}
+.player-right{
+  grid-row:2!important;grid-column:4!important;
+  justify-self:end!important;align-self:center!important;
+  width:auto!important;max-width:none!important;
+  display:flex!important;position:relative!important;z-index:3!important;
+}
+#playerStatus{display:none!important}
+.player-song:hover{background:transparent!important}
+#playerTimeline[hidden],#playerTime[hidden]{display:none!important}
+@media(max-width:1150px){
+ .player{grid-template-columns:minmax(145px,1fr) auto 95px minmax(145px,1fr)!important;padding-left:110px!important;column-gap:7px!important}
+ .player-time{width:95px!important}
+ .player-time #elapsedTime,.player-time #totalTime,.player-time .time-divider{font-size:11px!important}
+ .player-volume input{flex-basis:65px!important;width:65px!important}
+ .player-volume{margin-right:28px!important}
+}
+@media(max-width:760px){
+ .player{padding:5px 8px 8px!important;grid-template-columns:minmax(74px,1fr) auto 86px!important;column-gap:4px!important;grid-template-rows:1px 68px!important}
+ .player-song{min-width:0!important;width:100%!important}
+ .player-art{width:38px!important;height:38px!important}
+ .player-controls{grid-column:2!important;gap:3px!important}
+ .player-controls button{font-size:13px!important}
+ .player-time{grid-column:3!important;width:86px!important}
+ .player-time #elapsedTime,.player-time #totalTime,.player-time .time-divider{font-size:10px!important}
+ .player-volume,.player-right{display:none!important}
+}
