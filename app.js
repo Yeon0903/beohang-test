@@ -368,3 +368,6 @@ function openPlaylistPickerForMenu(s){playlistSong=s.id;const picker=document.qu
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTrackMenu()});
 window.addEventListener('scroll',closeTrackMenu,{passive:true,capture:true});
 window.addEventListener('resize',closeTrackMenu);
+
+/* Volume control bootstrap: video player created asynchronously */
+(function(){const slider=document.getElementById('volumeRange'),mute=document.getElementById('volumeMute'),val=document.getElementById('volumeValue');if(!slider||!mute)return;let last=65;try{const saved=Number(localStorage.getItem('beohang-volume'));if(Number.isFinite(saved)&&saved>=0&&saved<=100)last=saved}catch{}slider.value=last;val.textContent=last+'%';mute.textContent=last?'🔊':'🔇';function apply(n){n=Number(n);slider.value=n;val.textContent=n+'%';mute.textContent=n?'🔊':'🔇';window.beohangYT?.setVolume(n);try{localStorage.setItem('beohang-volume',String(n))}catch{}}slider.addEventListener('input',()=>apply(slider.value));mute.addEventListener('click',e=>{e.stopPropagation();if(+slider.value){last=+slider.value;apply(0)}else apply(last||65)});setTimeout(()=>apply(slider.value),500)})();
