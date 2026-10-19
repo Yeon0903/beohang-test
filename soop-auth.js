@@ -31,12 +31,13 @@
  status?.after(logout);
  function update(){
    const verified=sessionStorage.getItem(VERIFIED_KEY)==='yes';
-   const entry=document.getElementById('accountEntry');
-   if(entry && !sessionStorage.getItem('beohang_role_demo')){
-     entry.textContent=verified?'SOOP 인증 확인됨 · 테스트':'SOOP 로그인';
-   }
+   window.dispatchEvent(new Event('virhang:auth-test-changed'));
    btn.textContent=verified?'SOOP 다시 인증하기':'SOOP 계정으로 계속하기';
    logout.hidden=!verified;
+   if(!verified){
+     if(intro)intro.textContent='SOOP 계정으로 간편하게 버항 인증을 진행해 보세요.';
+     if(disclaimer)disclaimer.textContent='현재는 인증 테스트 단계예요. 회원별 저장과 권한은 아직 연동되지 않았어요.';
+   }
    if(verified){
      if(intro)intro.textContent='SOOP 인증이 정상적으로 확인되었어요. 현재는 회원 식별·로그인 세션을 연결하기 전 테스트 단계예요.';
      if(disclaimer)disclaimer.textContent='이 상태는 이 브라우저 탭에만 임시 저장돼요. 서버 회원가입, 권한, 플레이리스트 저장과는 연결되지 않아요.';

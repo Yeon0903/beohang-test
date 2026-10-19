@@ -30,7 +30,7 @@ function fileToDataUrl(file){return new Promise((resolve,reject)=>{if(!file){res
 
 function normalizeTrack(s){if(Array.isArray(s.details))return s;let old=s.genre||'K-POP';if(['발라드','록','댄스','랩','힙합','R&B','재즈','어쿠스틱','기타'].includes(old))return {...s,genre:'K-POP',details:[old]};return {...s,details:[]}}
 function filtered(){let arr=all().map(normalizeTrack).filter(s=>(genre==='전체'||s.genre===genre)&&(detail==='전체'||s.details.includes(detail))&&(!query||`${s.title} ${s.singer} ${s.album||''} ${s.genre} ${s.details.join(' ')} ${s.type}`.toLowerCase().includes(query)));if(selectedNav==='my')arr=arr.filter(s=>likes.has(s.id));if(sort==='views')arr.sort((a,b)=>b.views-a.views);if(sort==='likes')arr.sort((a,b)=>b.likes-a.likes);return arr}
-function isSignedIn(){try{const a=JSON.parse(sessionStorage.getItem('beohang_role_demo')||'null');return !!(a&&['viewer','streamer','admin','superadmin'].includes(a.role))}catch{return false}}
+function isSignedIn(){return false} // Server member sessions are not implemented yet
 function requireLogin(){if(isSignedIn())return true;document.getElementById('accountModal')?.showModal();return false}
 function render(){document.querySelectorAll('.nav-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===selectedNav));const arr=filtered();const shown=selectedNav==='home'?arr.slice(0,4):arr;$('songs').innerHTML=shown.map(s=>`<article class="song-card"><div class="cover" style="${artBg(s)}">${artLayer(s)}<button class="cover-play" data-play="${esc(s.id)}" aria-label="${esc(s.title)} 선택">▶</button></div><div class="song-meta"><h3 title="${esc(s.title)}">${esc(s.title)}</h3><p>${esc(s.singer)} · ${esc(s.type)}</p><div class="song-bottom"><span class="tags"><span class="tag main-tag">${esc(s.genre)}</span>${s.details.map(g=>`<span class="tag detail-tag">${esc(g)}</span>`).join('')}</span><button type="button" class="song-more" data-track-menu="${esc(s.id)}" aria-label="${esc(s.title)} 더보기" title="곡 메뉴">⋯</button>${isSignedIn()?`<button class="playlist-add-mini" data-add-playlist="${esc(s.id)}" title="플레이리스트에 담기" aria-label="${esc(s.title)} 플레이리스트에 담기">＋</button><button class="love ${likes.has(s.id)?'on':''}" data-like="${esc(s.id)}" aria-label="좋아요">${likes.has(s.id)?'♥':'♡'}</button>`:''}</div></div></article>`).join('');$('empty').hidden=!!arr.length; $('empty').style.display=arr.length?'none':'';$('searchCount').textContent=selectedNav==='search'?arr.length:0;$('songTitle').textContent=selectedNav==='home'?'🫧 최근 등록된 노래':selectedNav==='songs'?'🎵 모든 노래 탐색':query?'🔎 검색 결과':'🐚 새로운 노래를 발견해요';const top=[...all()].sort((a,b)=>b.views-a.views).slice(0,5);$('rank').innerHTML=top.map((s,i)=>`<div class="rank-row"><span class="rank-no">${i+1}</span><span class="rank-thumb" style="${artBg(s)}">${artLayer(s)}</span><span class="rank-name"><b>${esc(s.title)}</b><small>${esc(s.singer)}</small></span><span class="rank-val">▷ ${num(s.views)}</span>${isSignedIn()?`<button class="rank-add" data-add-playlist="${esc(s.id)}" aria-label="플레이리스트에 담기">＋</button>`:''}<button class="song-more" data-track-menu="${esc(s.id)}" aria-label="곡 메뉴">⋯</button><button class="love" data-play="${esc(s.id)}" aria-label="곡 선택">▶</button></div>`).join('');renderStreamers()}
 function notice(msg){$('notice').textContent=msg;$('notice').hidden=false;$('notice').scrollIntoView({behavior:'smooth',block:'nearest'})}
@@ -141,7 +141,7 @@ if(!Array.isArray(playlists))playlists=[];
 playlists=playlists.filter(p=>p&&typeof p.name==='string'&&Array.isArray(p.ids)).map(p=>({...p,ids:p.ids.filter(id=>typeof id==='string')}));
 // 체험판 전용: 닉네임을 임시 사용자 식별자로 삼아 이 브라우저 안에서만 자료를 분리합니다.
 // 실제 공개 서비스에서는 닉네임이 아닌 서버에서 발급한 고유 사용자 ID를 사용해야 합니다.
-function demoAccountName(){try{const a=JSON.parse(sessionStorage.getItem('beohang_role_demo')||'null');return a&&a.name?String(a.name).trim().normalize('NFC'):null}catch{return null}}
+function demoAccountName(){return null} // No self-entered usernames
 function userDataKey(kind){const name=demoAccountName();return name?'beohang_demo_v154_'+encodeURIComponent(name)+'_'+kind:'beohang_demo_v154_guest_'+kind}
 function loadPersonalLibrary(){
  if(!isSignedIn()){likes=new Set();streamerFavs=new Set();playlists=[];selectedPlaylist=null;return;}
@@ -216,37 +216,29 @@ const oldFavClickRefresh=()=>{if(selectedNav==='my')renderLibrary();};
 document.addEventListener('click',e=>{if(e.target.closest('[data-sfav],[data-like]'))setTimeout(oldFavClickRefresh,0);});
 loadPersonalLibrary();
 
-// V1.5 role interaction demo. Intentionally NOT authentication or an authorization boundary.
+// V2.3: SOOP-only login surface; no fake roles or self-assigned administrator.
 (()=>{
  const el=id=>document.getElementById(id);
- const roleNames={viewer:'🐠 시청자',streamer:'🎤 스트리머',admin:'🛡️ 관리자',superadmin:'👑 최고관리자'};
- let account=(()=>{try{const a=JSON.parse(sessionStorage.getItem('beohang_role_demo')||'null');return a&&roleNames[a.role]?a:null}catch{return null}})();
- function permissionText(){
-  const role=account?.role;
-  const items=role==='superadmin'?['노래 감상, 좋아요, 스트리머 즐겨찾기','전체 영상 등록 및 관리 화면','스트리머 승인, 닉네임 복구·변경 화면','관리자 등급 관리 화면']:role==='admin'?['노래 감상, 좋아요, 스트리머 즐겨찾기','전체 영상 등록 및 관리 화면','스트리머 승인 및 닉네임 관리 화면']:role==='streamer'?['노래 감상, 좋아요, 스트리머 즐겨찾기','본인 노래 등록·관리 화면']:['노래 감상','로그인 시 좋아요·플레이리스트·즐겨찾기','영상 등록 권한 없음'];
-  el('accountPermission').innerHTML=`<h3>${roleNames[role]||'🐚 체험 전'} 권한 미리보기</h3><ul>${items.map(s=>`<li>${s}</li>`).join('')}</ul><small>현재는 권한별 UI 시연만 제공하며, 실제 회원 정보·승인 기록은 없습니다.</small>`;
+ sessionStorage.removeItem('beohang_role_demo');
+ const welcome=el('accountWelcome');
+ const entry=el('accountEntry');
+ function refreshLogin(){
+   const verified=sessionStorage.getItem('virhang_soop_verified_test_v222')==='yes';
+   if(welcome)welcome.innerHTML='';
+   if(entry){
+     entry.textContent=verified?'SOOP 인증 확인됨 · 테스트':'SOOP 로그인';
+     entry.classList.remove('signed');
+   }
+   if(el('add'))el('add').hidden=true;
+   const save=document.querySelector('.player-save');
+   if(save)save.hidden=true;
  }
- function refresh(){
-  el('accountEntry').textContent=account?`${roleNames[account.role]} · ${account.name}`:'SOOP 로그인';
-  el('accountEntry').classList.toggle('signed',!!account);
-  el('accountWelcome').innerHTML=account?`<div class="account-status">반가워요, <strong>${account.name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong> 님!<br>${roleNames[account.role]} 역할로 화면을 체험하고 있어요.</div>`:'<div class="account-status">아직 체험 계정이 없어요. 아래에서 역할을 선택해 보세요.</div>';
-  el('demoNickname').value=account?.name||'';el('demoRole').value=account?.role||'viewer';el('demoLogout').hidden=!account;
-  const canAdd=account&&['streamer','admin','superadmin'].includes(account.role);
-  el('add').hidden=!canAdd;
-  el('add').textContent='＋ 영상 등록 체험';
-  el('add').title='체험 영상 등록';
-  if(document.querySelector('.player-save'))document.querySelector('.player-save').hidden=!account||!current;
-  permissionText();
- }
- el('accountEntry').onclick=()=>{refresh();el('accountModal').showModal()};
+ entry.onclick=()=>{refreshLogin();el('accountModal').showModal()};
  el('accountClose').onclick=()=>el('accountModal').close();
- el('demoLogin').onclick=()=>{const name=el('demoNickname').value.trim();if(!name){alert('체험용 닉네임을 입력해 주세요.');el('demoNickname').focus();return;}account={name:name.slice(0,20),role:el('demoRole').value};sessionStorage.setItem('beohang_role_demo',JSON.stringify(account));loadPersonalLibrary();libraryTab='songs';refresh();render();el('accountModal').close();};
- el('demoLogout').onclick=()=>{account=null;sessionStorage.removeItem('beohang_role_demo');loadPersonalLibrary();if(selectedNav==='my')selectedNav='home';if($('playlistAddDialog').open)$('playlistAddDialog').close();refresh();render();el('accountModal').close()};
- el('demoRole').onchange=permissionText;
- // Replace the V1.4 unrestricted add button; no server writes exist in this demo.
- el('add').onclick=()=>{if(!account){el('accountModal').showModal();return;}if(account.role==='viewer'){alert('시청자 계정은 음악을 등록할 수 없어요. 스트리머 역할 체험을 선택해 보세요.');return;}el('modal').showModal()};
- refresh();
+ window.addEventListener('virhang:auth-test-changed',refreshLogin);
+ refreshLogin();
 })();
+;
 
 // V1.8: bottom player expands into a music-focused view. Sample tracks do not have audio.
 let expandedTab='queue';
