@@ -312,7 +312,11 @@ $('player').addEventListener('click',e=>{
  // 곡 정보, 컨트롤, 음량은 별도 동작. 나머지 빈 영역만 재생 화면을 엽니다.
  if(e.target.closest('.player-art,.player-info,.player-controls,.player-volume,.player-timeline,.player-time'))return;
  if(e.target.closest('button,a,input,select,textarea,[data-track-menu]'))return;
- expandPlayer();
+ if(!current)return;
+ if(!$('expandedPlayer').hidden){
+   $('expandedPlayer').hidden=true;
+   document.body.classList.remove('expanded-open');
+ }else expandPlayer();
 });
 $('playerSinger').addEventListener('click',e=>{
  e.stopPropagation();
