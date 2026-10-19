@@ -211,3 +211,16 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 /* V2.0.5: 앨범 아트 모드에서 유튜브 플레이어를 숨기지 않고 작게 표시합니다. */
 .expanded-video-frame.album-video-mini{width:min(100%,280px)!important;height:200px!important;min-height:200px!important;aspect-ratio:auto!important;margin:14px auto 0!important;border-radius:14px!important;}
 .expanded-video-frame.album-video-mini iframe{height:100%!important;width:100%!important;}
+
+/* V2.0.6: 하단바 빈 부분에서만 확장 / 기존 컨트롤은 그대로 */
+.player{cursor:pointer;}
+.player-song,.player-controls,.player-volume,.player-song *{cursor:default;}
+.player-controls button,.player-volume button,.player-volume input,.player-artist-link:not(:disabled),.player-right button{cursor:pointer;}
+.player-right{cursor:pointer!important;}
+.player-right #playerStatus{cursor:pointer;}
+.player-right button{cursor:pointer;}
+.player-song:hover{background:transparent!important;}
+
+
+/* V2.0.7 album artwork improvements */
+.cover,.rank-thumb,.full-rank-cover,.mini-cover,.expanded-queue-art,.player-art,.expanded-cover{position:relative;overflow:hidden;background-size:cover;background-position:center center;background-repeat:no-repeat}.art-image-layer{position:absolute;inset:0;background-size:cover;background-position:center center;background-repeat:no-repeat;z-index:1}.art-symbol-fallback{position:relative;z-index:0;display:grid;place-items:center;width:100%;height:100%;font-size:inherit;filter:drop-shadow(1px 8px 7px #0002)}.cover-icon{position:relative;z-index:0}.cover-play,.song-more,.playlist-add-mini,.love,.rank-add,.mini-btn{position:relative;z-index:2}.player-art .art-symbol-fallback{font-size:24px}.rank-thumb .art-symbol-fallback{font-size:23px}.full-rank-cover .art-symbol-fallback{font-size:28px}.mini-cover .art-symbol-fallback,.expanded-queue-art .art-symbol-fallback{font-size:24px}.expanded-cover .art-symbol-fallback{font-size:clamp(90px,16vw,190px)}.expanded-left{position:relative}.expanded-video-frame.audio-only-hidden{position:absolute!important;left:-9999px!important;top:auto!important;width:1px!important;height:1px!important;min-height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;border:0!important;margin:0!important;padding:0!important}.expanded-video-frame.album-video-mini{display:none!important}
