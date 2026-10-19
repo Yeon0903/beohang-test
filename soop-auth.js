@@ -31,7 +31,7 @@
  status?.after(logout);
  function update(){
    const verified=sessionStorage.getItem(VERIFIED_KEY)==='yes';
-   window.dispatchEvent(new Event('virhang:auth-test-changed'));
+
    btn.textContent=verified?'SOOP 다시 인증하기':'SOOP 계정으로 계속하기';
    logout.hidden=!verified;
    if(!verified){
