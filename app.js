@@ -20,14 +20,31 @@ function all(){return [...sharedTracks,...custom,...samples].map(enrichTrack)}
 const num=n=>n>=10000?(n/10000).toFixed(1)+'만':n.toLocaleString('ko-KR');
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
-function safeImage(u){return String(u||'').trim().replace(/[\n\r]/g,'');}
+// Allow remote HTTPS artwork and legacy raster uploads; never trust supplied SVG/HTML.
+function safeImage(value){
+ const raw=String(value||'').trim();
+ if(/^data:image\/(?:png|jpeg|gif|webp|avif);base64,[a-zA-Z0-9+/]+={0,2}$/i.test(raw))return raw;
+ if(!raw||/[\u0000-\u0020\u007f"'<>`\\]/.test(raw))return '';
+ try{const url=new URL(raw);return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch{return '';}
+}
+function safeArtBackground(value){
+ const raw=String(value||'');
+ // Existing covers use plain hex gradients. Do not allow CSS URLs or declarations.
+ return /^linear-gradient\(\d{1,3}deg,\s*#[a-f0-9]{3}(?:[a-f0-9]{3})?\s*,\s*#[a-f0-9]{3}(?:[a-f0-9]{3})?\s*\)$/i.test(raw)?raw:'linear-gradient(135deg,#bfe8ef,#d8cef8)';
+}
 function thumbnailFromVideo(value){const id=(window.beohangYT&&typeof window.beohangYT.validate==='function'?window.beohangYT.validate(value):videoId(value))||(/^[A-Za-z0-9_-]{11}$/.test(String(value||'').trim())?String(value).trim():'');return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:''}
-function svgPlaceholder(symbol,bg,title){const colors=String(bg||'linear-gradient(135deg,#bfe8ef,#d8cef8)').match(/#(?:[0-9a-fA-F]{3}){1,2}/g)||['#bfe8ef','#d8cef8'];const a=colors[0],b=colors[1]||colors[0];const text=(symbol||'🎵').slice(0,2);const safeTitle=String(title||'').slice(0,18);const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${a}"/><stop offset="100%" stop-color="${b}"/></linearGradient></defs><rect width="600" height="600" rx="56" fill="url(#g)"/><circle cx="90" cy="70" r="120" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="5"/><circle cx="540" cy="560" r="150" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5"/><text x="300" y="305" text-anchor="middle" dominant-baseline="middle" font-size="150">${text}</text><text x="300" y="515" text-anchor="middle" font-size="34" font-weight="700" fill="rgba(26,73,84,.78)">${safeTitle}</text></svg>`;return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`}
+function svgPlaceholder(symbol,bg,title){const colors=String(bg||'linear-gradient(135deg,#bfe8ef,#d8cef8)').match(/#(?:[0-9a-fA-F]{3}){1,2}/g)||['#bfe8ef','#d8cef8'];const a=colors[0],b=colors[1]||colors[0];const text=esc(String(symbol||'🎵').slice(0,2));const safeTitle=esc(String(title||'').slice(0,18));const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${a}"/><stop offset="100%" stop-color="${b}"/></linearGradient></defs><rect width="600" height="600" rx="56" fill="url(#g)"/><circle cx="90" cy="70" r="120" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="5"/><circle cx="540" cy="560" r="150" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="5"/><text x="300" y="305" text-anchor="middle" dominant-baseline="middle" font-size="150">${text}</text><text x="300" y="515" text-anchor="middle" font-size="34" font-weight="700" fill="rgba(26,73,84,.78)">${safeTitle}</text></svg>`;return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`}
 function getArtwork(track){if(!track)return '';const own=safeImage(track.artwork||track.coverImage||track.image||track.albumImage);if(own)return own;const yt=thumbnailFromVideo(track.video||track.originalUrl);if(yt)return yt;return svgPlaceholder(track.symbol||'🎵',track.bg,track.title)}
 function enrichTrack(track){const t=normalizeTrack({...track});t.artwork=getArtwork(t);return t}
-function artBg(track){return `background:${track.bg||'linear-gradient(135deg,#bfe8ef,#d8cef8)'}`}
-function artLayer(track){const url=safeImage(getArtwork(track)).replace(/'/g,'%27');return `<span class="art-image-layer" style="background-image:url('${url}')"></span><span class="art-symbol-fallback">${esc(track.symbol||'🎵')}</span>`}
-function applyArtwork(el,track){if(!el||!track)return;el.style.background=track.bg||'linear-gradient(135deg,#bfe8ef,#d8cef8)';el.innerHTML=artLayer(track)}
+function artBg(track){return `background:${safeArtBackground(track.bg)}`}
+function artLayer(track){
+ // getArtwork validates supplied URLs; only our XML-escaped placeholder may be SVG.
+ // Serialize both CSS and HTML contexts, including the enclosing style attribute.
+ const url=getArtwork(track).replace(/["'()\\\n\r\f]/g,c=>'%'+c.charCodeAt(0).toString(16).padStart(2,'0'));
+ const style=esc(`background-image:url("${url}")`);
+ return `<span class="art-image-layer" style="${style}"></span><span class="art-symbol-fallback">${esc(track.symbol||'🎵')}</span>`;
+}
+function applyArtwork(el,track){if(!el||!track)return;el.style.background=safeArtBackground(track.bg);el.innerHTML=artLayer(track)}
 function fileToDataUrl(file){return new Promise((resolve,reject)=>{if(!file){resolve('');return;}const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(reader.error||new Error('파일을 읽을 수 없어요.'));reader.readAsDataURL(file);});}
 
 function normalizeTrack(s){if(Array.isArray(s.details))return s;let old=s.genre||'K-POP';if(['발라드','록','댄스','랩','힙합','R&B','재즈','어쿠스틱','기타'].includes(old))return {...s,genre:'K-POP',details:[old]};return {...s,details:[]}}
@@ -206,7 +223,7 @@ function loadPersonalLibrary(){
 }
 let libraryTab='songs',selectedPlaylist=null,playlistSong=null;
 function storePlaylists(){localStorage.setItem(userDataKey(PL_KEY),JSON.stringify(playlists));window.virhangAuth?.saveLibrary({likes:[...likes],playlists});}
-function songRow(t,idx,playlistId=null){return `<div class="library-song ${playlistId!==null?'sortable-track':''}" ${playlistId!==null?`data-sort-pl="${esc(playlistId)}" data-sort-index="${idx}" draggable="true"`:''}>${playlistId!==null?'<span class="drag-handle" title="잡고 끌어서 순서 변경" aria-label="곡 순서 변경">⠿</span>':''}<div class="mini-cover" style="background:${t.bg}">${t.symbol}</div><div class="library-song-title"><b>${esc(t.title)}</b><small>${esc(t.singer)} · ${esc(t.genre)}${t.details?.length?' · '+t.details.map(esc).join(' · '):''} · ${esc(t.type)}</small></div>${playlistId!==null?`<button class="mini-btn" data-remove-pl="${esc(playlistId)}" data-song="${esc(t.id)}">✕</button>`:`<button class="mini-btn" data-add-playlist="${esc(t.id)}">＋ 담기</button>`}<button class="song-more" data-track-menu="${esc(t.id)}" aria-label="곡 메뉴">⋯</button><button class="mini-btn" data-play="${esc(t.id)}">▶</button></div>`;}
+function songRow(t,idx,playlistId=null){return `<div class="library-song ${playlistId!==null?'sortable-track':''}" ${playlistId!==null?`data-sort-pl="${esc(playlistId)}" data-sort-index="${idx}" draggable="true"`:''}>${playlistId!==null?'<span class="drag-handle" title="잡고 끌어서 순서 변경" aria-label="곡 순서 변경">⠿</span>':''}<div class="mini-cover" style="${artBg(t)}">${esc(t.symbol||'🎵')}</div><div class="library-song-title"><b>${esc(t.title)}</b><small>${esc(t.singer)} · ${esc(t.genre)}${t.details?.length?' · '+t.details.map(esc).join(' · '):''} · ${esc(t.type)}</small></div>${playlistId!==null?`<button class="mini-btn" data-remove-pl="${esc(playlistId)}" data-song="${esc(t.id)}">✕</button>`:`<button class="mini-btn" data-add-playlist="${esc(t.id)}">＋ 담기</button>`}<button class="song-more" data-track-menu="${esc(t.id)}" aria-label="곡 메뉴">⋯</button><button class="mini-btn" data-play="${esc(t.id)}">▶</button></div>`;}
 
 function renderLibrary(){if(!isSignedIn()){$('libraryContent').innerHTML='<div class="library-empty">🐠 로그인하면 좋아요·즐겨찾기·플레이리스트를 사용할 수 있어요.</div>';return;}if(selectedNav!=='my')return;
  document.querySelectorAll('[data-library-tab]').forEach(b=>b.classList.toggle('active',b.dataset.libraryTab===libraryTab));

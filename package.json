@@ -1,0 +1,17 @@
+{
+  "name": "virhang",
+  "version": "3.0.0-dev",
+  "private": true,
+  "description": "VirHang local security regression tests; no deploy or remote DB scripts",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.cjs",
+    "check": "node scripts/check.cjs"
+  },
+  "engines": {
+    "node": ">=22.8.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "jsdom": "26.1.0"
+  }
+}
