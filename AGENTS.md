@@ -6,6 +6,15 @@
 - 현재 작업 환경은 **개발·테스트(staging)** 로 취급한다. 향후 별도 production 사이트 + 별도 Supabase 프로젝트를 만든다.
 - Codex에 코드를 열었다고 실제 Supabase에 SQL을 실행하거나 GitHub에 배포할 권한을 부여한 것으로 해석하지 않는다. 데이터 변경, 외부 API 설정 변경, 프로덕션 배포 전 사용자 승인 받기.
 
+## 현재 개발 합의 (2026-10-23 사용자 요청 반영)
+- 코드/문서/테스트 수정과 로컬 검증은 허용. **개발은 codex-dev 브랜치에서만** 진행하며, 변경 전 현재 브랜치와 작업 내용을 확인한다.
+- main 변경·GitHub 병합·Pages 배포·실제 Supabase/외부 설정 변경은 사전 승인 없이 하지 않는다. codex-dev를 배포 브랜치로 자동 연결하지 않는다.
+- SQL은 `supabase/migrations/`의 새 파일로 작성한다. 과거 버전 SQL 수정/일괄 실행 대신 사전조건·위험·적용·검증·복구를 문서화한다.
+- 사용자의 최신 8단계 백로그는 docs/BACKLOG.md. 현재 첫 단위는 관리자 NULL 권한 검사와 이미지 XSS이며 나머지 작업을 한 번에 구현하지 않는다.
+- 테스트 계정과 실제 최고관리자 분리. 로컬 fixture는 가짜 UUID와 메모리 DB만 사용한다. 실제 서버에서 검증하지 않은 기능은 완료라고 하지 않는다.
+- UI/기능 삭제·디자인 대규모 변경은 사전 승인. 보안 입력 거부 시 안전한 대체 표지를 사용한다.
+- `npm run check` 및 `npm test`는 로컬 검사 전용. 배포나 실제 DB 연결을 추가하지 않는다.
+
 ## 실제 현재 코드에서 확인된 사실
 - HTML/CSS/일반 JavaScript 웹 앱; supabase/functions/virhang-username-login/index.ts 포함.
 - `virhang-auth.js`의 `SUPABASE_PUBLISHABLE_KEY`는 `PASTE_SUPABASE_PUBLISHABLE_KEY_HERE` 플레이스홀더이다. 공개용 키만 브라우저 사용, secret/service_role 절대 금지.
@@ -31,6 +40,6 @@
 
 ## Codex 작업 방식
 1. `docs/PROJECT_STATUS.md`, `docs/BACKLOG.md`, `docs/ENVIRONMENTS.md`, `docs/ACCEPTANCE.md`를 읽는다.
-2. 초기 작업은 읽기 전용 인벤토리 및 테스트 설계. 구현 범위와 위험/변경 파일 목록을 먼저 제시한다.
+2. 최초 분석은 완료. 이후 기능별 구현 범위와 위험/변경 파일 목록을 먼저 제시하고 사용자 승인 범위 안에서 수정한다.
 3. 기능별 작은 변경, Git 커밋, 테스트 결과와 남은 이슈 보고.
 4. 개발 환경에서 확인한 변경만 승인 후 운영 환경에 반영.

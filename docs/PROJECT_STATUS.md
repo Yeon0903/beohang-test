@@ -1,19 +1,24 @@
-# 현재 V3.0 점검 메모 (압축파일 기준)
+# VirHang V3.0 현재 상태
 
-**확인 범위:** 코드/README/SQL 파일 존재 여부. 실제 Supabase 원격 설정, 배포 환경, 기능 정상동작은 검증하지 못함.
+갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 보안 패치 01 로컬 검증.
 
-| 영역 | 현재 상태 | 근거/주의 |
+사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
+
+| 영역 | 상태 | 근거/한계 |
 |---|---|---|
-| 자체 가입/아이디 로그인 | 코드 있음, 환경 검증 필요 | `virhang-auth.js`, `virhang-username-login` Edge Function |
-| 이메일 인증 | UI·로직 일부, 실발송 검증 필요 | SMTP/OTP 정책 확인 필요 |
-| 역할과 관리자·스트리머 관리 | SQL 및 JS 존재, 배포 확인 필요 | `V2.6.8_ADMIN_STREAMER_SETUP.sql`, `virhang-admin.js` |
-| 곡 게시, 수정/소프트삭제, 공동가수 뒤늦게 연결 | 코드와 SQL 있음 | `V2.6.9_PUBLISHED_TRACKS_SETUP.sql`, `V3.0_JOINT_SINGERS_LATE_SIGNUP.sql` |
-| YouTube 재생/30초 집계/새 재생 반복 집계 | 코드와 SQL 존재, 실사용 검증 필요 | `youtube-player.js`, `V3.0_RANKING_BACKEND_SETUP.sql`, `V3.0_ALLOW_REPLAYS.sql` |
-| 기간별 랭킹 | 일부 구현 | 서버 기록 구현됨, 좋아요 랭킹·스냅샷/NEW 별도 필요 |
-| SOOP URL 인식 | 외부 탭으로 열기 구현 | 임베드나 외부 시청 집계 아님 |
-| SOOP 계정 OAuth 연동 | 테스트 수준, 미완성 | 과거 `beohang-test` 콜백과 누락된 `virhang-soop-auth` Edge Function 원본 |
-| 개인 좋아요·플레이리스트 | 일부 클라이언트/라이브러리 구현, 동기화·권한·집계 검증 필요 | 공통 좋아요 랭킹 미연결 |
-| 최고관리자 MFA | 코드에서 확인되지 않음 | 추가 구현/인증 공급자 설정 필요 |
-| 테스트/운영 분리 | 구성되지 않음 | 이 프로젝트를 staging의 소스 기점으로 삼을 것 |
+| 관리자 NULL/미인증/프로필 없음 차단 | 새 migration 작성, 로컬 검증 | `202610230001_admin_null_guards.sql`, in-memory PostgreSQL. 실제 DB 적용 전에는 서버가 수정된 것이 아님 |
+| 이미지 XSS | 코드 수정, 로컬 DOM 검증 | app.js safeImage/artLayer/배경·심벌/SVG escape. 실제 브라우저 및 배포 후 검증 대기 |
+| 관리자 정상 관리 동작 | 로컬 회귀검증 | admin/super_admin 승인·해제, 가수 연결/해제, 권한 철회, track ID/credit 보존 |
+| RLS | 일부 로컬 검증 | 기존 SQL + 최소 fixture에서 소유자·공동 가수 수정 허용/일반회원 거부. 실제 users 스키마·정책 누락으로 전체 보안 완료 아님 |
+| 서버 곡 입력·로그인 제한 보호 | 대기 | 다음 보안 단위. 기존 DEV 제한 해제 SQL은 운영 적용 금지 |
+| 테스트 도구 | 로컬 도입 | npm run check, npm test. Node >=22.8, devDependencies만 추가. CI/배포 연결 없음 |
+| 자체 가입/아이디 로그인/이메일 OTP | 부분 | 공개키 placeholder, SMTP/실제 설정 미확인 |
+| 공개곡/수정/삭제/공동 가수 | 부분 | 기존 코드/SQL 보존. 직접 DELETE·복구 UI·원곡 링크 매핑 등 미완 |
+| YouTube 재생/30초·반복 재집계/기간별 랭킹 | 부분 | 기존 구현 보존. 부정 재생/삭제곡 필터·실제 DB/브라우저 검증 필요 |
+| SOOP URL | 외부 탭 열기 코드 | 내장 재생·외부 시청 집계 아님 |
+| SOOP 회원 연결 | 미구현, 테스트 코드만 | 서버 함수 원본 누락, soopLinked 영구 false, 공식 API 지원 미확인 |
+| 좋아요/플레이리스트 | 부분 | 개인 JSON 저장·로컬 UI. 공통 좋아요 랭킹·공개범위·동기화 검증 필요 |
+| 스트리머/크루/어항 | 부분 또는 미구현 | 가상 프로필/장식 화면, 실제 통계·알림·리캡·포인트 등 BACKLOG 참조 |
+| 최고관리자 MFA/감사/운영 분리 | 대기 | 운영 DB/호스팅/OAuth는 별도 구성 예정 |
 
-**보안 주의:** 업로드 원본에 Supabase 프로젝트 URL(비밀값 아님), SOOP Client ID(비밀키 아님), 과거 callback URL이 있음. Secret은 사용자/플랫폼 설정에서 관리해야 한다. 프런트 파일에 publishable key placeholder가 남아 있어 현재 원본만으로 즉시 정상 배포된다고 단정할 수 없음.
+로컬 검증 결과·실행 방법·적용 위험·복구 절차는 `SECURITY_PATCH_01.md`에 기록한다. 이전 FIRST_CODEX_PROMPT와 버전 README는 역사적 안내이며 최신 상태 판단은 이 문서와 BACKLOG를 우선한다. 실행 전에는 항상 현재 사용자의 승인 범위를 따른다.

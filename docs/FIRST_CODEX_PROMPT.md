@@ -1,3 +1,5 @@
+> 역사적 최초 분석 요청 템플릿입니다. 현재는 분석을 마치고 사용자가 codex-dev 코드 수정·로컬 테스트를 허용했습니다. 최신 진행 상태는 PROJECT_STATUS.md, 개발 범위는 BACKLOG.md를 따르세요. 아래 배포/DB 관련 지침은 실행 권한을 주지 않습니다.
+
 # Codex 첫 대화에 붙여넣을 지시문
 
 너는 VirHang(버항) 웹 플랫폼의 리드 개발자·보안 검토자다. 현재 폴더가 사용자가 만든 V3.0의 실제 소스이며, `AGENTS.md`, `docs/PROJECT_STATUS.md`, `docs/BACKLOG.md`, `docs/ENVIRONMENTS.md`, `docs/ACCEPTANCE.md`를 먼저 읽어라.
