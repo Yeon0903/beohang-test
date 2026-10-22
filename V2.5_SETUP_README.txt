@@ -1,0 +1,18 @@
+버항 V2.5 준비 버전 (테스트 전용, 배포·연동 필요)
+
+규칙
+- 아이디: 영문 소문자/숫자만 4~20자, 고유값
+- 비밀번호: 8자 이상, 영문 소문자와 숫자 각각 필수, 특수문자 선택
+- 로그인: 아이디/비밀번호; 이메일은 가입 인증용
+
+중요: 이 ZIP을 업로드하는 것만으로 실서비스 회원가입이 완성되지는 않습니다.
+1. 기존 프로젝트 백업 후 Supabase SQL Editor에 V2.5_USERNAME_SETUP.sql 실행. V2.4_DATABASE_SETUP.sql은 기존에 실행했다면 재실행할 필요 없음.
+2. virhang-auth.js에는 공개 publishable/anon 키만 입력하세요. 비밀 service_role 키 절대 금지.
+3. Supabase Edge Functions로 supabase/functions/virhang-username-login/index.ts 배포. 로그인 전 호출이 필요하므로 함수 JWT 검증 끄기(--no-verify-jwt). 서비스 역할 키는 Supabase 서버 환경변수에서만 사용.
+4. Edge Function 환경변수 VIRHANG_SITE_ORIGIN에 정확한 사이트 출처(예: https://example.github.io) 입력. 경로·끝 슬래시 제외. 로그인 남용 방지를 위한 IP 기반 rate limit, CAPTCHA, 관측/차단은 실제 공개 운영 전에 추가 권장.
+5. Supabase Authentication > Emails > Confirm sign up 템플릿에 {{ .Token }} 포함하고 저장. 현재 대시보드는 Custom SMTP 설정 전 템플릿 수정 불가. 따라서 SMTP/템플릿이 준비되기 전에는 6자리 번호 인증이 작동하지 않음.
+6. 이메일은 제3자 SMTP가 필요할 수 있음. 기본 발송을 실사용에 의존하지 마세요.
+7. 신규 사용자로 전체 흐름을 검증. 기존 이메일 회원은 username 데이터가 없으므로 별도 마이그레이션 필요.
+8. 현재 서버에서는 회원 비밀번호에 대한 사용자 규칙을 signUp API만으로 강제할 수 없으므로, API 직접 호출 악용을 막으려면 서버 검증·Auth Hook 등 강화 필요.
+
+이번 변경 범위: 회원가입/로그인 폼, 아이디 테이블/중복 제약, 회원가입 트리거, 아이디 로그인 서버 함수, 이메일 OTP 확인 코드. 기존 음악 UI/데이터/플레이리스트 로직은 유지.

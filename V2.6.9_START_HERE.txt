@@ -1,0 +1,14 @@
+버항 V2.6.9 (개발용)
+
+1. 기존 프로젝트를 백업하고 이 폴더를 새 폴더로 압축 해제.
+2. Supabase SQL Editor에서 V2.6.9_PUBLISHED_TRACKS_SETUP.sql 실행. 다른 SQL은 다시 실행하지 마세요.
+3. virhang-auth.js의 SUPABASE_PUBLISHABLE_KEY만 본인 공개 키로 변경. secret/service_role 키는 절대 프런트엔드에 넣지 마세요.
+4. 새 폴더에서 python -m http.server 5500 실행 후 http://localhost:5500 접속.
+5. streamer/admin/super_admin 회원은 노래 탐색 페이지의 '＋ 노래 등록' 버튼 사용. 다른 회원은 버튼이 보이지 않음.
+6. 링크 한 칸에 유튜브 영상/Shorts 또는 SOOP 클립 공식 HTTPS 주소를 붙여넣기. 비지원 주소는 오류 처리.
+7. 등록 즉시 virhang_published_tracks 테이블에 저장되어 사이트에 공개됨. 다른 방문자는 새로고침 시 확인 가능.
+8. SOOP 클립은 외부 SOOP에서 열리며, 사이트 내부 재생은 아직 지원/검증되지 않았음.
+9. 사진 '파일 업로드'는 공개 Supabase Storage 연결 전이므로 등록할 수 없음. 이미지 URL은 사용 가능.
+10. 기존 virhang_tracks 테이블은 건드리지 않음. 새 테이블은 virhang_published_tracks.
+
+주의: 현재 버전에는 공개 노래 삭제/수정 UI가 아직 연결되어 있지 않으며, SQL 권한 정책만 준비됨. 공개 서비스 전에는 링크 서버 검증, 악용 방지, 스트리머 권한/노래 출처 검증, 저작권 검토, rate limit 복구, 로그 확인이 필요합니다.

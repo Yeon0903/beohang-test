@@ -398,3 +398,58 @@ body.expanded-open .expanded-panel{flex:initial;min-height:0;max-height:min(55vh
 
 /* virhang V2.4 auth controls */
 .vir-auth-form{display:grid;gap:11px;margin:16px 0}.vir-auth-form label{display:grid;gap:6px;color:#346d79;font-size:13px;font-weight:700}.vir-auth-form input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cce9e6;border-radius:12px;font:inherit}.vir-auth-form button{cursor:pointer}.vir-dev-oauth{border-top:1px solid #e2efef;margin-top:16px;padding-top:12px;color:#75979b;font-size:12px}.vir-dev-oauth summary{cursor:pointer}.vir-dev-oauth button{margin-top:10px}#virAuthMember[hidden],#virAuthGuest[hidden]{display:none!important}
+
+/* V2.5 account tabs and verification */
+.vir-auth-tabs{display:flex;gap:8px;margin:14px 0}.vir-auth-tabs button{flex:1;border:1px solid #cce9e6;border-radius:12px;padding:12px;background:#f6faf9;color:#346d79;font-weight:700;cursor:pointer}.vir-auth-tabs button.active{background:#dff6ef;border-color:#61b9a7}
+#virSignupOnly{display:grid;gap:11px}#virSignupOnly[hidden],#virVerifyForm[hidden]{display:none!important}
+
+/* V2.6.1 OTP countdown / resend */
+.vir-otp-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;background:#f0faf8;border-radius:10px;color:#346d79;font-size:13px}
+#virOtpTimer{font-size:20px;font-variant-numeric:tabular-nums;color:#1591a3;letter-spacing:.04em}
+#virOtpTimer.expired{color:#bf5555}
+#virResendOtp:disabled,#virVerifySubmit:disabled{opacity:.55;cursor:not-allowed}
+
+/* V2.6.2: safe offline OTP UI preview */
+.vir-preview-banner{background:#fff8e5;border:1px solid #f2dea8;border-radius:10px;padding:10px 12px;color:#8a6625;font-size:12px;line-height:1.6;margin:8px 0}
+#virPreviewOtp{font-size:12px}
+#virPreviewOtp[hidden],#virPreviewNotice[hidden]{display:none!important}
+
+/* V2.6.3: 회원가입의 연속 단계로 표시되는 인증 화면 */
+.vir-signup-step{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 14px;color:#3f8992;font-size:12px;font-weight:600;letter-spacing:.02em}
+.vir-signup-step strong{color:#146f7b;font-weight:800}
+.vir-signup-step[hidden]{display:none!important}
+
+/* V2.6.4 signup wizard: hide tab navigation during verification */
+#virAuthTabs[hidden]{display:none!important}
+#virPreviewOtp:not([hidden]){display:block;margin-top:12px}
+#virSignupStep:not([hidden]){display:flex;gap:8px;align-items:center;justify-content:center;margin:14px 0 6px}
+
+/* V2.6.5: enforce strictly separate signup-only controls regardless of inherited display rules */
+#virAuthForm[data-mode="login"] #virSignupOnly, #virAuthForm[data-mode="login"] #virSignupOnly * { display:none!important; }
+#virAuthForm[data-mode="signup"] #virSignupOnly:not([hidden]) { display:grid; }
+#virAuthForm[hidden],#virVerifyForm[hidden],#virAuthTabs[hidden] { display:none!important; }
+
+/* V2.6.7 standalone authentication screens */
+#virLoginScreen[hidden],#virSignupScreen[hidden],#virVerifyForm[hidden]{display:none!important}
+.vir-screen-title{font-size:21px;font-weight:800;color:#245b68;text-align:center;margin:15px 0 5px}
+.vir-dual-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.vir-dual-buttons button{min-height:46px;border-radius:11px;font-weight:700}
+
+/* V2.6.8 admin panel */
+#virAdminOpen[hidden], #virAdminDialog[hidden]{display:none!important}
+.vir-admin-dialog{max-width:550px;width:calc(100% - 24px);padding:0;border:0;border-radius:22px;box-shadow:0 20px 65px #144b5477;max-height:90vh;overflow:auto}
+.vir-admin-dialog::backdrop{background:#153e4980;backdrop-filter:blur(5px)}
+.vir-admin-shell{padding:26px 30px;background:#fff;color:#23677b}
+.vir-admin-shell h3{margin:20px 0 12px}
+.vir-admin-shell hr{border:0;border-top:1px solid #dbedec;margin-top:20px}
+.vir-admin-help{font-size:13px;line-height:1.6;color:#558394;white-space:pre-wrap}
+.vir-admin-shell .vir-dual-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vir-admin-shell button{min-height:40px}
+
+/* V3.0 통합 랭킹 화면 */
+.rank-controls{display:flex;flex-wrap:wrap;gap:8px}
+.rank-mode{transition:background .15s,color .15s,border .15s;white-space:nowrap}
+.rank-mode:focus-visible{outline:3px solid #75c9cf;outline-offset:3px}
+.rank-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:18px 0 8px;color:#256e7a}
+.rank-summary strong{font-size:19px}.rank-summary span{font-size:12px;color:#6f9298}
+.rank-status{margin:0 0 14px;padding:12px 16px;border:1px solid #dcefeb;background:#f2faf8;border-radius:12px;color:#447a83;font-size:13px}

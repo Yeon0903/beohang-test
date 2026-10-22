@@ -1,0 +1,13 @@
+버항 V3.0 Alpha SOOP VOD 링크 지원 패치
+
+- YouTube, Shorts, SOOP 공식 클립/Catch, SOOP vod.sooplive.com/player/<숫자>/playlist/<숫자> URL을 인식합니다.
+- 이미지 미입력 시 YouTube는 기존 자동 썸네일, SOOP는 제목이 포함된 기본 앨범 표지를 자동 표시합니다. 실제 SOOP 영상 썸네일 자동 추출 기능은 아직 없습니다.
+- SOOP 영상은 사이트 내 임베드가 아니라 원본 페이지를 새 탭에서 엽니다.
+- 이전 V3.0 Alpha 반복 재생 버전에 본 패치가 통합되어 있습니다.
+- 이 패치만을 위한 추가 SQL/Edge Function 배포는 필요하지 않습니다. 기존 V2.6.9 공개곡 테이블과 V3.0 랭킹 설정이 미적용이면 별도로 설치해야 합니다.
+
+1. 이 폴더를 새 작업 디렉터리에 압축 해제
+2. virhang-auth.js의 공개 publishable key 설정 확인 (secret/service_role 키 절대 금지)
+3. 이전 Python 서버 종료 후 이 폴더에서 python -m http.server 5500
+4. localhost:5500 접속 후 Ctrl+F5 강력 새로고침
+5. SOOP VOD 링크와 미입력 앨범 이미지 확인

@@ -1,0 +1,1 @@
+V2.6.6: Account tabs and OTP preview are interactive even when Supabase SDK or publishable key is not configured. Supabase requests still require a valid public key. Test: login -> signup -> preview -> back -> login. Server and database unchanged.

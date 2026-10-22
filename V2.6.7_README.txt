@@ -1,0 +1,6 @@
+버항 V2.6.7: 로그인/회원가입/이메일 인증 독립 화면. 기존 음악 기능 유지.
+1. virhang-auth.js 내 Supabase 공개 키 설정 (비밀 키는 절대 사용하지 말 것).
+2. 이 폴더에서 python -m http.server 5500 실행.
+3. 개발 중 로그인 15분 제한을 제거하려면 Supabase SQL Editor에서 V2.6.7_DISABLE_RATE_LIMIT_DEV.sql 실행.
+4. 정식 배포 전 V2.6.7_RESTORE_RATE_LIMIT.sql 실행 및 IP/계정 기준 추가 방어 필수.
+5. 이메일 실제 OTP는 별도 SMTP와 메일 템플릿 준비 필요. 미리보기는 실제 인증이 아님.

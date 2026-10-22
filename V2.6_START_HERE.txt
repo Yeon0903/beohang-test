@@ -1,0 +1,19 @@
+버항 V2.6 (Supabase 구조 통합 개발본)
+
+기존 V2.5 음악/화면 코드 기반. 변경: 로그인 Edge Function이 public.virhang_users.username을 사용하도록 통일; 회원가입 메타데이터(username)를 auth.users 생성 시 public.virhang_users에 등록하는 트리거 제공; 기존 계정 라이브러리 코드 유지.
+
+반드시 순서대로:
+1) 먼저 Supabase DB 백업하고 `V2.6_DATABASE_MIGRATION.sql` 검토/실행. 기존 username 컬럼·유니크 인덱스·형식 제약 및 virhang_check_login_limit(text) 함수가 이미 생성되어 있다는 전제. 과거 V2.5_USERNAME_SETUP.sql은 실행하지 마세요.
+2) `virhang-auth.js`의 PASTE_SUPABASE_PUBLISHABLE_KEY_HERE에 공개 publishable(또는 legacy anon) 키만 넣습니다. 서버 service_role/secret 키는 넣으면 안 됩니다.
+3) Supabase Edge Functions > Secrets 에 VIRHANG_SITE_ORIGIN 을 사이트의 정확한 출처(예 https://yourname.github.io)로 설정; 끝에 경로/슬래시 없음. GitHub Pages의 경우 저장소 경로 제외.
+4) 기존 virhang-username-login 함수 코드를 이 ZIP의 supabase/functions/virhang-username-login/index.ts 내용으로 교체하고 재배포. Verify JWT 설정은 OFF. SOOP 함수는 수정하지 않음.
+5) 회원가입은 Supabase Auth.signUp(email/password + user_metadata.username)을 사용하며 트리거가 ID 일치 프로필을 생성합니다. 비밀번호는 프런트엔드에서 8~128자, 소문자와 숫자 필수, 특수문자 선택으로 검사합니다. 별도의 서버 측 비밀번호 정책 강제는 향후 작업 필요.
+6) 이메일 6자리 인증은 Confirm sign up 템플릿에 {{ .Token }}을 넣어야 작동합니다. 현재 사용자의 Supabase 대시보드에서는 custom SMTP를 설정해야 템플릿을 수정할 수 있어 아직 완료되지 않았습니다. 설정 전 실제 신규 회원으로 테스트하지 마세요.
+7) 이메일 인증/SMTP 전 단계에서는 작동 화면과 DB/함수 코드를 준비한 상태입니다. 완료된 운영 서비스가 아닙니다.
+8) 기존 auth.users 의 미인증 1개 계정은 이 트리거로 자동 이전되지 않습니다. 이 계정의 이메일을 재사용하면 회원가입이 거절되거나 기존 기록이 반환될 수 있습니다. 삭제하지 말고 별도 이전/정리 결정을 하세요.
+9) 현재 로그인 시도 제한은 SQL RPC에 기반한 아이디 단위 15분 5회이고 성공도 한 번으로 집계합니다. 공개 운영 전 IP기반 분산 제한, 봇 방어, 로깅, 공격자에 의한 계정 잠금 대비, 로그인 오류 횟수 정상화 정책이 필요합니다.
+10) Origin/CORS 검사는 브라우저 제한이지 서버 인증/봇 방어가 아닙니다. 배포된 JWT OFF 함수는 공개 호출 가능한 것으로 취급해야 합니다.
+11) 추가 주의: 기존 별도 RLS/권한 설정을 확인하고, 운영 전 스테이징 환경에서 가입·인증·세션 갱신·라이브러리 로드 테스트를 완료하세요.
+
+변경 파일: virhang-auth.js, supabase/functions/virhang-username-login/index.ts, V2.6_DATABASE_MIGRATION.sql, V2.6_START_HERE.txt.
+유지 파일: index.html, style.css, app.js, youtube-player.js, soop-auth.js, auth/callback.html, V2.4_DATABASE_SETUP.sql.
