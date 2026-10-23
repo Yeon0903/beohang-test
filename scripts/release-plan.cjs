@@ -7,16 +7,19 @@ function plan(environment,projectRef,config,repoRoot=root){
  if(refs.some(r=>!/^[a-z]{20}$/.test(r||''))||refs[0]===refs[1])throw new Error('Bind two distinct real project refs in a local config');
  if(config[environment].projectRef!==projectRef)throw new Error('Project/environment mismatch');
  const manifest=JSON.parse(fs.readFileSync(path.join(repoRoot,'config/migration-allowlist.json'),'utf8'));
+ const entries=[...(manifest.prerequisites||[]),...manifest.migrations];
  const files=fs.readdirSync(path.join(repoRoot,'supabase/migrations')).sort();
- if(files.length!==manifest.migrations.length)throw new Error('Unreviewed migration files');
- const steps=manifest.migrations.map(item=>{
+ if(files.length!==entries.length||new Set(entries.map(x=>x.file)).size!==entries.length)throw new Error('Unreviewed migration files');
+ const steps=entries.map(item=>{
   if(!/^\d{12}_[a-z0-9_]+\.sql$/.test(item.file)||!files.includes(item.file))throw new Error('Invalid migration path');
   const body=fs.readFileSync(path.join(repoRoot,'supabase/migrations',item.file));
   if(crypto.createHash('sha256').update(body).digest('hex')!==item.sha256)throw new Error('Migration changed since review: '+item.file);
   if(/DISABLE_RATE_LIMIT_DEV|SELECT\s+true\s*;|developer_bypass\s*=\s*true/i.test(body.toString()))throw new Error('Developer relaxation is forbidden in shared migrations');
   return item.file;
  });
- return {environment,projectRef,mode:'review-only; no SQL execution',requiresSchemaReview:true,migrations:steps,developerBypass:false};
+ return {environment,projectRef,mode:'review-only; no SQL execution',requiresSchemaReview:true,
+  prerequisites:steps.slice(0,(manifest.prerequisites||[]).length),
+  migrations:steps.slice((manifest.prerequisites||[]).length),executionOrder:steps,requiresSeparateApplyApproval:true,developerBypass:false};
 }
 if(require.main===module){
  try{

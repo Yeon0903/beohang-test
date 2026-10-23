@@ -8,7 +8,8 @@
     "check": "node scripts/check.cjs",
     "test:browser": "node scripts/browser-smoke.cjs",
     "rehearse": "node scripts/rehearse-migrations.cjs",
-    "rehearse:live-shape": "node scripts/rehearse-live-shape.cjs"
+    "rehearse:live-shape": "node scripts/rehearse-live-shape.cjs",
+    "rehearse:prerequisite": "node scripts/rehearse-prerequisite.cjs"
   },
   "engines": {
     "node": ">=22.8.0"

@@ -3,12 +3,12 @@
 const {PGlite}=require('@electric-sql/pglite');
 const {sql,users,track,id}=require('./security-db.cjs');
 const legacyTrack=id(101),event=id(200);
-async function liveShapeFixture(){
+async function liveShapeFixture({integrityConfirmed=false}={}){
  const db=new PGlite();
  await db.exec(`
  CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS;
  CREATE SCHEMA auth;
- CREATE TABLE auth.users(id uuid PRIMARY KEY,raw_user_meta_data jsonb DEFAULT '{}'::jsonb);
+ CREATE TABLE auth.users(id uuid PRIMARY KEY,raw_user_meta_data jsonb DEFAULT '{}'::jsonb,email_confirmed_at timestamptz);
  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  GRANT USAGE ON SCHEMA public,auth TO anon,authenticated;
  CREATE TABLE public.virhang_users(id uuid PRIMARY KEY,username text UNIQUE,display_name text,role text,created_at timestamptz DEFAULT now(),updated_at timestamptz DEFAULT now());
@@ -17,8 +17,15 @@ async function liveShapeFixture(){
  `);
  for(const [name,uuid] of Object.entries(users)){
   await db.query('INSERT INTO auth.users(id) VALUES($1)',[uuid]);
-  if(name!=='profileless')await db.query('INSERT INTO public.virhang_users(id,username,role) VALUES($1,$2,$3)',[uuid,name,name==='nullrole'?null:['contributor','outsider'].includes(name)?'streamer':name==='superadmin'?'super_admin':name]);
+  if(name!=='profileless')await db.query('INSERT INTO public.virhang_users(id,username,role) VALUES($1,$2,$3)',[uuid,name,name==='nullrole'?(integrityConfirmed?'viewer':null):['contributor','outsider'].includes(name)?'streamer':name==='superadmin'?'super_admin':name]);
  }
+ if(integrityConfirmed)await db.exec(`
+  ALTER TABLE public.virhang_users ALTER COLUMN role SET NOT NULL;
+  ALTER TABLE public.virhang_users ALTER COLUMN role SET DEFAULT 'viewer';
+  ALTER TABLE public.virhang_users ADD CONSTRAINT fixture_allowed_roles CHECK(role IN ('viewer','streamer','admin','super_admin'));
+  GRANT USAGE ON SCHEMA public TO service_role;
+  GRANT SELECT(id,username) ON public.virhang_users TO service_role;
+ `);
  for(const file of ['V2.4_DATABASE_SETUP.sql','V2.6.8_ADMIN_STREAMER_SETUP.sql','V2.6.9_PUBLISHED_TRACKS_SETUP.sql','V2.6_DATABASE_MIGRATION.sql','V3.0_RANKING_BACKEND_SETUP.sql'])await db.exec(sql(file));
  await db.exec(`
  CREATE TABLE public.virhang_tracks(id uuid PRIMARY KEY,title text,genre text,artwork_url text,created_at timestamptz DEFAULT now());

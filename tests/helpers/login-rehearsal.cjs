@@ -1,7 +1,7 @@
 // Real handlers, real local SQL RPCs; Supabase Auth/network boundary uses synthetic accounts only.
 const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');
 const {stripTypeScriptTypes}=require('node:module');const {pathToFileURL}=require('node:url');
-async function callLogin(f,{legacy=false,environment='staging',password='rehearsal-only',username='viewer'}={}){
+async function callLogin(f,{legacy=false,environment='staging',password='rehearsal-only',username='viewer',enforceServiceLookup=false,emailConfirmed=true}={}){
  const calls=[];let handler;
  const {acceptsLoginPolicy}=await import(pathToFileURL(path.resolve(__dirname,'../../supabase/functions/virhang-username-login/login-policy.mjs')));
  const service={
@@ -13,9 +13,11 @@ async function callLogin(f,{legacy=false,environment='staging',password='rehears
    }catch(e){return {data:null,error:{message:e.code}};}
   },
   from:()=>({select:()=>({eq:(_,name)=>({maybeSingle:async()=>{
-   calls.push('profile_lookup');const r=await f.db.query('SELECT id FROM public.virhang_users WHERE username=$1',[name]);return {data:r.rows[0]||null,error:null};
+   calls.push('profile_lookup');
+   const lookup=()=>f.db.query('SELECT id FROM public.virhang_users WHERE username=$1',[name]);
+   const r=enforceServiceLookup?await f.actor('service_role',null,lookup):await lookup();return {data:r.rows[0]||null,error:null};
   }})})}),
-  auth:{admin:{getUserById:async id=>({data:{user:{id,email:'rehearsal@example.invalid',email_confirmed_at:'2020-01-01'}},error:null})}}
+  auth:{admin:{getUserById:async id=>({data:{user:{id,email:'rehearsal@example.invalid',email_confirmed_at:emailConfirmed?'2020-01-01':null}},error:null})}}
  };
  const auth={auth:{signInWithPassword:async()=>password==='rehearsal-only'?{data:{user:{id:f.users.viewer},session:{access_token:'synthetic-access',refresh_token:'synthetic-refresh',expires_in:3600,token_type:'bearer'}},error:null}:{data:{session:null},error:{message:'invalid'}}}};
  const source=legacy?path.resolve(__dirname,'../fixtures/username-login-before-policy.ts'):path.resolve(__dirname,'../../supabase/functions/virhang-username-login/index.ts');

@@ -17,5 +17,11 @@
       "file": "202610230004_environment_login_policy.sql",
       "sha256": "67c048b1070533308c4a76bd2ac606850a0dc928bab41313cf0251fd80038fca"
     }
+  ],
+  "prerequisites": [
+    {
+      "file": "202610230000_joint_singer_prerequisites.sql",
+      "sha256": "7924696ded996e703c71bff18e9f9e4c9f0b9365d47bd2f0e69c6eb33a981bf0"
+    }
   ]
 }
