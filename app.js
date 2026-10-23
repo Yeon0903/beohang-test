@@ -179,7 +179,7 @@ $('addForm').addEventListener('submit',async e=>{
  const file=$('newArtworkFile').files?.[0];
  if(file){alert('전체 공개 등록에서는 이미지 파일 직접 업로드가 아직 지원되지 않아요. 이미지 주소를 입력하거나 자동 썸네일을 사용해 주세요.');return;}
  const supplied=$('newArtworkUrl').value.trim();
- if(supplied){try{const u=new URL(supplied);if(u.protocol!=='https:')throw 0;artwork=u.toString()}catch{alert('앨범 이미지 주소는 https 링크로 입력해 주세요.');return;}}
+ if(supplied){artwork=safeImage(supplied);if(!artwork||!artwork.startsWith('https:')){alert('앨범 이미지 주소는 안전한 https 링크로 입력해 주세요.');return;}}
  // SOOP has no guaranteed public thumbnail URL. With no image supplied, the UI generates a themed cover automatically.
  else artwork=media.platform==='youtube'?thumbnailFromVideo(media.video):'';
  const row={title:$('newTitle').value.trim(),singer:$('newSinger').value.trim(),album:$('newAlbum').value.trim(),platform:media.platform,source_url:media.url,artwork_url:artwork,genre:$('newGenre').value,details:[...document.querySelectorAll('input[name="detailGenre"]:checked')].map(c=>c.value),song_type:$('newType').value,description:$('newDescription').value.trim(),lyrics:$('newLyrics').value.trim(),original_url:$('newOriginalUrl').value.trim()};

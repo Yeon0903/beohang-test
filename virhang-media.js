@@ -2,7 +2,9 @@
 window.virhangMedia=(()=>{
  function parse(value){
   try{
-   const u=new URL(String(value).trim());if(u.protocol!=="https:")return null;
+   const raw=String(value).trim();
+   if(/[\u0000-\u0020\u007f"'<>`\\]/.test(raw))return null;
+   const u=new URL(raw);if(u.protocol!=="https:"||u.username||u.password||u.port)return null;
    const host=u.hostname.toLowerCase().replace(/^www\./,"");let id="";
    if(host==="youtu.be")id=u.pathname.split("/")[1];
    else if(["youtube.com","m.youtube.com","music.youtube.com"].includes(host))id=u.pathname==="/watch"?u.searchParams.get("v"):u.pathname.match(/^\/(?:shorts|live|embed)\/([^/]+)/)?.[1];

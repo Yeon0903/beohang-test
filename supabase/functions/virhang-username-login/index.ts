@@ -1,12 +1,14 @@
 // Virhang V2.6, intended for Supabase Edge Functions (Verify JWT OFF for pre-login requests).
 // Production note: add IP-based distributed rate limiting, abuse monitoring/CAPTCHA before public launch.
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { acceptsLoginPolicy } from './login-policy.mjs';
 
 const url = Deno.env.get('SUPABASE_URL')!;
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!; // legacy key provisioned by Supabase
 const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!; // server-only
 const admin = createClient(url, serviceKey, {auth: {persistSession: false, autoRefreshToken: false}});
 const auth = createClient(url, anonKey, {auth: {persistSession: false, autoRefreshToken: false}});
+const environment = Deno.env.get('VIRHANG_ENV') || 'production';
 const allowedOrigin = Deno.env.get('VIRHANG_SITE_ORIGIN') || '';
 
 function headers(req: Request) {
@@ -39,6 +41,11 @@ Deno.serve(async (req) => {
     const {username, password} = input as Record<string, unknown>;
     if (typeof username !== 'string' || !/^[a-z0-9]{4,20}$/.test(username) || typeof password !== 'string' || password.length < 8 || password.length > 128)
       return json(req, 401, invalid);
+
+    // Fail closed on environment mismatch or a legacy limiter overwrite.
+    const {data: policy, error: policyError} = await admin.rpc('virhang_login_policy');
+    if (policyError || !acceptsLoginPolicy(environment, policy))
+      return json(req, 503, {error: '로그인 보안 설정을 확인해야 합니다.'});
 
     // DB RPC atomically increments an account-scoped attempt counter. This is NOT an IP limit.
     const {data: permitted, error: limitError} = await admin.rpc('virhang_check_login_limit', {p_username: username});

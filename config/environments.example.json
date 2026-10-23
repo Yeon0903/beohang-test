@@ -1,0 +1,4 @@
+{
+  "staging": {"projectRef": "hjvsbfphlnukmdkfbtsh"},
+  "production": {"projectRef": "REPLACE_WITH_NEW_PRODUCTION_PROJECT_REF"}
+}
