@@ -42,3 +42,8 @@
 - 환경별 project ref 예시는 config/environments.example.json, 로컬 binding은 비추적 config/environments.local.json. production ref는 신규 프로젝트 확정 전까지 비워 둔다.
 - scripts/release-plan.cjs는 승인된 migration hash와 프로젝트 분리를 확인하는 계획 생성 전용이다. SQL 실행/자동 배포를 하지 않는다.
 - 이번 사용자는 Pages 설정 미확인으로 원격 push 대신 패치 보존을 선택했다. Pages 소스 확인 없이 배포 영향이 있는 push를 재개하지 않는다.
+
+## 3차 승인 경계와 적용 순서
+현재 요청은 배포 영향이 없다는 증거가 있는 codex-dev push만 허용한다. Pages source 조회가 거부되어 이번에는 push 보류. workflow 폴더 404는 외부 연동 부재 증명이 아니다. 실제 DB/Edge/Pages는 미변경이다.
+
+기존 로그인 Edge 유지 → SQL/함수 사전조건 검증 → 승인된 001~004 → staging 정책/서버 환경 일치 확인 → 후보 Edge 검증 → 활성 Edge 전환 → 프런트 별도 승인 순서로 준비한다. 새 Edge를 policy RPC보다 먼저 활성화하면 503이 발생하므로 금지한다. 상세/중단·복구는 STAGING_ROLLOUT_03.md 참조.

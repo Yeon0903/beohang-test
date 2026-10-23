@@ -1,6 +1,6 @@
 # VirHang V3.0 현재 상태
 
-갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 보안 패치 02 로컬 검증.
+갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 3차 보존·staging 적용 전 준비.
 
 사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
 
@@ -29,3 +29,11 @@
 - 전체 자동 테스트 **161 통과, 0 실패, 0 skip**, JS/콜백 문법 10개 통과. 실제 DB/Pages는 미변경.
 - Pages 소스 조회 접근 제한 후 사용자가 패치 보존을 선택했으므로 GitHub push/PR/merge는 하지 않는다. codex-dev 로컬 커밋과 적용용 패치·bundle로 보존한다.
 - 새 입력/RLS/로그인 정책·배포 위험·검증 범위/순서는 SECURITY_PATCH_02.md 참조. 운영 release-plan은 실행하지 않는 검토용 계획만 만든다.
+
+## 3차 적용 전 준비 (2026-10-23)
+- 기존 4개 커밋과 preservation-02 파일 9개 SHA256/bundle 검증 통과. 기존 161개 테스트 재실행 전부 통과. catalog/신규 DB 선행조건 준비 테스트 3개 추가 후 전체 **164 통과, 실패/skip 0**.
+- Pages API/gh 조회 제한으로 source 미확인. main/codex-dev의 workflow 폴더 404만 확인됨. 외부 연동까지 안전하다고 판정할 수 없어 이번에도 push하지 않음.
+- 실제 DB/인증 설정 조회 자격 증명 없음. users/legacy attempts baseline 누락으로 신규 DB 완전 재현 불가. 테스트 fixture는 production baseline이 아님.
+- 기존 서비스 JS/CSS/001~004 migration은 불변. 적용·중단·복구 절차는 STAGING_ROLLOUT_03.md, 보안 잔여 검증은 SECURITY_VALIDATION_MATRIX.md.
+- 독립 복구용 전체 Git bundle/소스 ZIP 생성·검증은 RECOVERY_BACKUP_03.md의 도구 사용. 지정 output 경로 생성이 거부되어 채팅 첨부/다운로드 전달은 환경 제약으로 미완료이며 workspace ZIP 외부 반출 필요.
+- 1단계 전체 완료 아님. 실제 schema/RLS/복원 검증과 IP/Auth 직접 경로·MFA·감사 로그가 남음.
