@@ -34,3 +34,9 @@
 - [x] 이전 Edge/새 Edge와 실제 local SQL RPC를 연결해 배포 순서 검증(Auth/JWT는 mock).
 - [x] 실제 Chromium offline smoke 8개, node 자동 테스트 174개 통과.
 - [ ] 공유용 live catalog 보고서 대조 및 실제 JWT/PostgREST/Deno/브라우저/YouTube 검증.
+
+## 실제 구조 대조 (06)
+- [x] 사용자 catalog JSON의 차단 사유 10개를 재현하고, 누락된 soft-delete·공동 가수 선행 요건과 002~004 생성 객체를 구별.
+- [x] 합성 8개 기존 표의 모든 기존 필드 보존·새 기본값·최고관리자·재실행/검증 연결 보존·실패 rollback 검증.
+- [x] 정책 0개인 회원 표의 기본 거부, 기존 definer RPC 경로, 취약 JOINT 중간 상태 및 최종 권한 회귀 테스트.
+- [ ] 실제 무결성 06·기존 정책/함수 owner/본문·grant·백업 복구·Auth/JWT 확인. FK/role을 임의 변경하지 않음.

@@ -8,7 +8,7 @@
 
 ## 현재 개발 합의 (2026-10-23 사용자 요청 반영)
 - 코드/문서/테스트 수정과 로컬 검증은 허용. **개발은 codex-dev 브랜치에서만** 진행하며, 변경 전 현재 브랜치와 작업 내용을 확인한다.
-- 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. 검증/비밀정보 검사 후 codex-dev 코드 보존 push는 허용된 이력이 있다. main merge/Pages·Edge 배포/실제 DB 변경은 여전히 승인 전 금지. 현재 5차는 실제 구조 대조·격리 rehearsal에 집중한다.
+- 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. 검증/비밀정보 검사 후 codex-dev 코드 보존 push는 허용된 이력이 있다. main merge/Pages·Edge 배포/실제 DB 변경은 여전히 승인 전 금지. 현재는 전달된 실제 catalog 대조·격리 rehearsal에 집중한다.
 - main 변경·GitHub 병합·Pages 배포·실제 Supabase/외부 설정 변경은 사전 승인 없이 하지 않는다. codex-dev를 배포 브랜치로 자동 연결하지 않는다.
 - SQL은 `supabase/migrations/`의 새 파일로 작성한다. 과거 버전 SQL 수정/일괄 실행 대신 사전조건·위험·적용·검증·복구를 문서화한다.
 - 사용자의 최신 8단계 백로그는 docs/BACKLOG.md. 1차 관리자 NULL/XSS와 2차 곡 입력/privacy RLS/환경별 로그인 정책을 로컬 검증했다. 이후도 작은 단위로 진행한다.
@@ -48,3 +48,5 @@
 ## 검증 도구 (5차)
 - npm run rehearse는 합성 PGlite 전용, npm run test:browser는 모든 앱 요청을 가로채는 offline Chromium 전용이다. 실제 Supabase/Auth/YouTube를 검증했다고 표시하지 않는다.
 - 실제 구조 공유는 security_shareable_05.sql의 단일 JSON만 사용하고 work/live-schema-report.json 같은 비추적 경로에 보관한다. 실제 회원 행/함수 본문/secret을 수집·공개하지 않는다.
+- 실제 05 결과는 공동 가수 구조/soft-delete 컬럼 누락 등 10개 차단 사유다. LIVE_SCHEMA_COMPARISON_06.md를 우선 참조한다. 원본 JOINT SQL을 단독 적용하지 않는다.
+- security_integrity_06.sql은 회원/곡 행을 내부적으로 읽되 boolean 무결성 결과만 반환한다. 이 결과와 비공개 정의 확인 전에는 Auth FK/계정/역할을 추측해 고치지 않는다. 사용자 JSON은 계속 비추적 work/에만 둔다.

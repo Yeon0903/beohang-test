@@ -1,6 +1,6 @@
 # VirHang V3.0 현재 상태
 
-갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 5차 격리 DB 적용·브라우저 검증.
+갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 실제 catalog 대조·누락 구조 격리 재현.
 
 사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
 
@@ -44,3 +44,12 @@
 - 합성 격리 DB의 8개 기존 테이블 행 전체를 각 001~004 전후 비교해 불변 확인. 최고관리자 role 유지, 이전 Edge의 각 단계 200, 새 Edge의 잘못된 순서/환경 503·올바른 전환 200 재현(Auth는 mock).
 - 기존 164개 + 신규 10개 = **174 통과, 0 실패/skip**. 실제 Chromium의 외부 연결 차단 smoke 8개도 통과, 페이지 오류 0.
 - 실제 배포/DB 변경은 하지 않음. baseline 누락·원격 정책/함수·데이터/백업·실제 Auth/Deno 확인 전에는 적용 준비 완료가 아니다. 정확한 SQL Editor 순서는 LIVE_SCHEMA_REHEARSAL_05.md 참조.
+
+## 실제 Supabase 보고서 대조 (06)
+- 사용자 제공 05 JSON을 db-compatibility로 검사: blocked, 차단 사유 10개. 공동 가수 2개 표/4개 helper/동기화 trigger와 soft-delete 2컬럼이 없고 users의 Auth FK 미감지다. private 로그인 표/신규 보안 helper는 002~004가 생성할 객체다.
+- 격리 모형의 공유 catalog 전체가 실제 JSON과 일치하는 것을 확인했다. 원격의 비공개 함수/정책/제약/행까지 같다는 뜻은 아니다.
+- 이 모형에서 001 단독은 P0001로 중단. 공동 가수 선행 SQL과 001~004를 단일 트랜잭션으로 실행하면 기존 8개 표의 모든 기존 필드·최고관리자 role 유지, 2개 soft-delete 기본값 추가, singer에서 credit만 backfill. 재실행 시 수동 검증 연결도 보존됐다.
+- Auth FK는 추측해 추가하지 않았으므로 처리 후에도 차단 사유 1개와 비공개 검토 항목이 남는다. 옛 JOINT 단독 적용은 NULL role 관리 경로/검증 UUID 공개/직접 DELETE를 노출할 수 있어 금지한다.
+- 다음 사용자 작업은 security_integrity_06.sql 읽기 전용 조회 후 virhang_integrity_report JSON만 공유. 내부적으로 행을 읽지만 계정 행/식별자/역할별 수는 출력하지 않는다.
+- 실제 DB/Edge/Pages 변경 없음. 신규 최종 DDL은 무결성/기존 정의 확인 후 별도 migration으로 확정한다. 결과/정확한 의존성·복구는 LIVE_SCHEMA_COMPARISON_06.md 참조.
+- 기존 174개 유지 + 신규 15개 = **189 통과, 실패/skip 0**. npm run check 10개 통과. Chromium은 이번에 재실행하지 않았으며 5차 8개 통과는 과거 기록이다.
