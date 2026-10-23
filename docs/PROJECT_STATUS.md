@@ -1,6 +1,6 @@
 # VirHang V3.0 현재 상태
 
-갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 실제 catalog 대조·누락 구조 격리 재현.
+갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 7차 강화된 선행 migration 구현·격리 검증.
 
 사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
 
@@ -53,3 +53,11 @@
 - 다음 사용자 작업은 security_integrity_06.sql 읽기 전용 조회 후 virhang_integrity_report JSON만 공유. 내부적으로 행을 읽지만 계정 행/식별자/역할별 수는 출력하지 않는다.
 - 실제 DB/Edge/Pages 변경 없음. 신규 최종 DDL은 무결성/기존 정의 확인 후 별도 migration으로 확정한다. 결과/정확한 의존성·복구는 LIVE_SCHEMA_COMPARISON_06.md 참조.
 - 기존 174개 유지 + 신규 15개 = **189 통과, 실패/skip 0**. npm run check 10개 통과. Chromium은 이번에 재실행하지 않았으며 5차 8개 통과는 과거 기록이다.
+
+## 7차 선행 migration 구현
+- 사용자 확인 06 결과를 반영했다: 유효한 username/role·role NOT NULL/CHECK/viewer 기본값·최고관리자·기존 definer RLS 권한·service_role 조회 권한 있음, 고아 profile 없음, Auth-only 있음, 회원 Auth FK 없음. 자동 계정 수정/FK 추가는 하지 않는다.
+- 신규 202610230000_joint_singer_prerequisites.sql을 작성했다. 누락 공동 가수/soft-delete 구조·INSERT-only backfill과 초기 보안을 한 BEGIN/COMMIT으로 설치한다. 원본 001~004/서비스 JS/디자인은 불변이다.
+- 000 → 001 → 002 → 003 → 004를 각각 COMMIT하며 각 경계의 NULL/프로필 없음 관리자 거부·검증 UUID 비공개·직접 DELETE 거부를 검증했다. 기존 8개 표의 모든 기존 필드·최고관리자·Auth-only 보존, 수동 credit/가수 연결/시각의 재실행 보존, 최종 COMMIT 직전 실패 rollback 통과.
+- 저장소 signup trigger는 이메일 확인 전 Auth INSERT 시 username이 있으면 viewer 생성, 없으면 Auth-only 유지. 이메일 인증 UPDATE는 profile을 생성하지 않는다. 해당 소스 동작을 테스트했으며 실제 원격 trigger 본문/메일/Auth는 미검증이다.
+- 기존 189개 + 신규 40개 = **229 통과, 실패/skip 0**. npm run check 10개 통과. service_role profile SELECT를 실제 local 권한으로 경유한 이전/현재 Edge handler 호환 테스트도 통과(Auth/JWT는 mock).
+- 실제 DB/Edge/Pages는 미변경. 코드 후보의 local 검증은 완료, 실제 적용·원격 JWT/복원 검증·FK/탈퇴·MFA/IP/Auth 직접 경로/감사는 미완료다. 적용/중단/복구/수정 파일은 SECURITY_PREREQUISITE_07.md를 우선 참조한다.

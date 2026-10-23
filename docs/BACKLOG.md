@@ -107,3 +107,10 @@
 - [x] 옛 JOINT 단독의 NULL 역할 경로 재현, 실패 backfill rollback, 읽기 전용 무결성 boolean 조회 SQL 작성.
 - [ ] 06 결과/비공개 정책·함수/원격 Edge/서비스 grant/백업 복원 확인 및 FK·선행 신규 migration 확정.
 - [ ] 실제 JWT/PostgREST·Auth·브라우저 검증, 사용자 승인 적용. IP/전역 제한·직접 Auth·MFA·감사는 계속 미완료.
+
+## 7차 선행 구조 개발
+- [x] 사용자 06 결과 수신, 자동 profile 생성/삭제·회원 Auth FK 추가 없이 확인된 제약/grant를 합성 fixture에 반영.
+- [x] 000 신규 migration: 공동 가수 표/credit/soft-delete·초기 hardening, INSERT-only backfill, 원본 001~004 호환.
+- [x] 독립 COMMIT 경계 보안·기존 8개 표/최고관리자/Auth-only 보존·재실행·실패 rollback·signup 시점 테스트. 전체 229 통과.
+- [x] 승인 후 000~004 실행 순서/읽기 전용 postcheck/Edge 순서/복구·탈퇴 FK 분리 검토 문서 작성.
+- [ ] 승인된 실제 테스트 DB 적용 및 JWT/PostgREST/Edge/Auth/브라우저 검증. 별도 실제 최고관리자 계정을 공격 테스트에 사용하지 않음.

@@ -50,3 +50,8 @@
 - 실제 구조 공유는 security_shareable_05.sql의 단일 JSON만 사용하고 work/live-schema-report.json 같은 비추적 경로에 보관한다. 실제 회원 행/함수 본문/secret을 수집·공개하지 않는다.
 - 실제 05 결과는 공동 가수 구조/soft-delete 컬럼 누락 등 10개 차단 사유다. LIVE_SCHEMA_COMPARISON_06.md를 우선 참조한다. 원본 JOINT SQL을 단독 적용하지 않는다.
 - security_integrity_06.sql은 회원/곡 행을 내부적으로 읽되 boolean 무결성 결과만 반환한다. 이 결과와 비공개 정의 확인 전에는 Auth FK/계정/역할을 추측해 고치지 않는다. 사용자 JSON은 계속 비추적 work/에만 둔다.
+
+## 7차 선행 migration
+- 사용자가 06 무결성 결과를 확인했다. Auth-only 계정은 보존하며 회원→Auth FK/탈퇴 정책은 별도 판단한다. 실제 함수 본문/정책·Auth 서비스 확인과 실제 적용 승인은 계속 필요하다.
+- 202610230000_joint_singer_prerequisites.sql은 강화된 선행 구조다. 승인 후 순서는 000 → 원본 001 → 002 → 003 → 004. 옛 JOINT 단독 적용은 금지한다. 상세는 docs/SECURITY_PREREQUISITE_07.md.
+- npm run rehearse:prerequisite는 합성 PGlite에서 파일별 COMMIT 경계까지 검사한다. 실제 DB/Edge에 접속하지 않는다. 신규 postcheck 07은 승인된 000 적용 이후에만 실행한다.
