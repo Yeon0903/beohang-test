@@ -8,12 +8,12 @@
 
 - [x] S1-01 관리자 RPC NULL 역할·비로그인·프로필 없음 명시 거부: 새 migration 작성, 로컬 PostgreSQL 검증. **실제 DB 미적용**.
 - [x] S1-02 artLayer 이미지 HTML/CSS 삽입 차단, 자체 SVG XML 이스케이프, 레거시 배경/심벌 보호: 로컬 DOM 회귀검증. **배포 미실시**.
-- [ ] S1-03 서버에서 곡 등록·수정 URL/플랫폼/필드/수정 가능 컬럼 검증. 기존 잘못된 데이터의 무단 삭제 금지.
+- [x] S1-03 **로컬 검증 / 미적용** 서버에서 곡 등록·수정 URL/플랫폼/필드/수정 가능 컬럼 검증. 기존 잘못된 데이터의 무단 삭제 금지.
 - [ ] S1-04 실제 RLS/grant/SECURITY DEFINER/users 역할 보호 정책 대조. users·login_attempts baseline 정의 확보. 현재 로컬 fixture RLS 검증만 가능.
-- [ ] S1-05 개발용 로그인 제한 해제 SQL의 운영 유입 방지: 승인된 migration 목록·정적 검사·계정/IP 제한 검증. 기존 DEV SQL은 참고용이며 실행 금지.
-- [ ] S1-06 직접 DELETE로 이력이 삭제되지 않게 서버 soft-delete 강제, 공개 조회/삭제곡/랭킹 정책 검증.
+- [x] S1-05 **로컬 정책/계획 검증 / 미적용** 운영 migration allowlist·프로젝트 분리·계정 제한·관리자 상시 제한. 실제 CI 및 IP 방어는 대기. 기존 DEV SQL은 참고용이며 실행 금지.
+- [x] S1-06 **로컬 검증 / 미적용** 직접 DELETE로 이력이 삭제되지 않게 서버 soft-delete 강제, 공개 조회/삭제곡/랭킹 정책 검증.
 
-이번 단위는 S1-01/02만 구현한다. 변경/적용 위험/검증/복구는 `SECURITY_PATCH_01.md` 참조.
+1차는 S1-01/02, 2차는 곡 검증·privacy RLS·환경별 계정 제한을 구현했다. 실제 적용/원격 검증은 별도다. `SECURITY_PATCH_01.md`, `SECURITY_PATCH_02.md` 참조.
 
 ## 2단계 — 테스트 환경 구축
 

@@ -34,3 +34,11 @@
 - 같은 yeon0903.github.io 아래 경로만 달리하면 동일 origin이다. 운영은 독립 도메인을 권장한다. 도메인/프로젝트 ID를 임의 확정하지 않는다.
 - 정적 HTML은 .env를 자동으로 읽지 않는다. 공개 설정 생성 단계는 후속 구현한다. service_role/SOOP secret은 서버 secret manager 전용이다.
 - 실제 관리자 계정으로 로컬 테스트하지 않는다. 패키지 테스트는 메모리 PostgreSQL의 가짜 계정만 사용한다.
+
+## 2차 로그인 정책과 검토 도구
+- 현재 실제 테스트 DB의 제한 해제는 이번에 건드리지 않았다. 신규 migration 004는 production strict 기본값이고 staging 완화는 migration 외 수동 설정으로 분리한다.
+- staging에서도 admin/super_admin은 항상 계정 제한을 받는다. 실제 최고관리자와 테스트 관리자는 분리한다. MFA는 아직 미구현이다.
+- 새 Edge는 VIRHANG_ENV와 DB policy/fingerprint가 일치해야 로그인 가능하다. Supabase Auth 직접 이메일 로그인과 IP 방어는 별도 보완한다.
+- 환경별 project ref 예시는 config/environments.example.json, 로컬 binding은 비추적 config/environments.local.json. production ref는 신규 프로젝트 확정 전까지 비워 둔다.
+- scripts/release-plan.cjs는 승인된 migration hash와 프로젝트 분리를 확인하는 계획 생성 전용이다. SQL 실행/자동 배포를 하지 않는다.
+- 이번 사용자는 Pages 설정 미확인으로 원격 push 대신 패치 보존을 선택했다. Pages 소스 확인 없이 배포 영향이 있는 push를 재개하지 않는다.
