@@ -1,6 +1,6 @@
 # VirHang V3.0 전체 개발 백로그
 
-갱신: 2026-10-23 KST. 사용자 최신 8단계 요청을 기준으로 이전 P0~P4 목록을 통합했다.
+갱신: 2026-10-24 KST. 사용자 최신 8단계 요청을 기준으로 이전 P0~P4 목록을 통합했다.
 
 상태: **로컬 검증**은 테스트 범위에서만 통과, **부분**은 일부 구현, **대기**는 미구현/미검증이다. 원격 DB/배포 검증을 통과하기 전에는 출시 완료로 표시하지 않는다. 개발은 `codex-dev`에서만 진행하며 main/Pages/실제 Supabase 변경은 사전 승인이 필요하다.
 
@@ -114,3 +114,10 @@
 - [x] 독립 COMMIT 경계 보안·기존 8개 표/최고관리자/Auth-only 보존·재실행·실패 rollback·signup 시점 테스트. 전체 229 통과.
 - [x] 승인 후 000~004 실행 순서/읽기 전용 postcheck/Edge 순서/복구·탈퇴 FK 분리 검토 문서 작성.
 - [ ] 승인된 실제 테스트 DB 적용 및 JWT/PostgREST/Edge/Auth/브라우저 검증. 별도 실제 최고관리자 계정을 공격 테스트에 사용하지 않음.
+
+## 8차 Free 백업 준비 / 9차 진입 조건
+- [x] 공식 CLI v2.122.0 Windows 설치·숨김 입력·PC 비공개 export·Auth/관리 schema/역할 범위와 SQL 외 보관 항목·SHA256/localhost 격리 복원 절차 작성(FREE_SUPABASE_BACKUP_WINDOWS_08.md).
+- [x] 기존 npm test 229개 및 npm run check 10개 재검증. 서비스·디자인·000~004는 변경 없음.
+- [ ] 사용자 PC 지원 환경/CLI 설치 및 실제 schema/data/roles export, 관리 custom DDL/이력·Storage/Edge/설정 보관 확인.
+- [ ] 원본/복사본 파일 무결성 대조·실데이터 격리 복원·회원/Auth-only/최고관리자/곡/라이브러리/재생/권한 검증.
+- [ ] 별도 사용자 승인 후 1단계 9차 테스트 환경 migration 적용·Edge/브라우저 기능 검증. 이번에는 실행하지 않음. 추천 추론 수준 High.

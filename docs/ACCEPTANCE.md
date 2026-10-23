@@ -46,3 +46,11 @@
 - [x] 파일별 5회 COMMIT 경계의 권한·기존 행/역할·재실행 연결·롤백·로컬 service_role 조회 검증. 신규 40개 포함 총 229 통과.
 - [x] 회원/Auth/권한 임의 변경 없음, profile 생성 trigger의 인증 전후 동작과 Auth-only 유지 검증.
 - [ ] 실제 서버 적용 승인·실제 DB backup 복원·원격 정책/함수/Edge·JWT/Auth/브라우저 회귀. FK·탈퇴/MFA/IP/감사 미완료.
+
+## 8차 Free 백업 준비
+- [x] 공식 CLI 고정 버전·Windows 지원 조건·설치/hash·비밀번호 비노출·Git 밖 비공개 보관 절차 기록.
+- [x] Auth 데이터/관리 schema·가입 trigger·회원 role/DB roles 구별 및 Storage 실제 파일·Edge/설정·비밀값의 별도 범위 기록.
+- [x] localhost 전용·외부 통신 차단·역할→schema→data 복원과 무결성/기존 데이터·권한 대조 절차 기록. 기존 229개 테스트/문법 10개 통과.
+- [ ] Windows PC에서 명령 실행 및 실제 백업 파일/암호화 복사본 생성·SHA256 확인.
+- [ ] 실데이터 격리 복원·custom 관리 객체·설정/추가 파일 범위 및 RPO 확인. 합성 테스트와 구별.
+- [ ] 별도 적용 승인 후 9차 진행. 실제 DB/Edge/Pages/000~004는 이번에 변경/실행하지 않음.

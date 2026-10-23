@@ -6,9 +6,9 @@
 - 현재 작업 환경은 **개발·테스트(staging)** 로 취급한다. 향후 별도 production 사이트 + 별도 Supabase 프로젝트를 만든다.
 - Codex에 코드를 열었다고 실제 Supabase에 SQL을 실행하거나 GitHub에 배포할 권한을 부여한 것으로 해석하지 않는다. 데이터 변경, 외부 API 설정 변경, 프로덕션 배포 전 사용자 승인 받기.
 
-## 현재 개발 합의 (2026-10-23 사용자 요청 반영)
+## 현재 개발 합의 (2026-10-24 사용자 요청 반영)
 - 코드/문서/테스트 수정과 로컬 검증은 허용. **개발은 codex-dev 브랜치에서만** 진행하며, 변경 전 현재 브랜치와 작업 내용을 확인한다.
-- 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. 검증/비밀정보 검사 후 codex-dev 코드 보존 push는 허용된 이력이 있다. main merge/Pages·Edge 배포/실제 DB 변경은 여전히 승인 전 금지. 현재는 전달된 실제 catalog 대조·격리 rehearsal에 집중한다.
+- 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. 검증/비밀정보 검사 후 codex-dev 코드 보존 push는 허용된 이력이 있다. main merge/Pages·Edge 배포/실제 DB 변경은 여전히 승인 전 금지. 현재는 Free Supabase의 사용자 PC 비공개 백업 절차를 준비한다. 실제 export/복원/000~004 적용은 수행하지 않는다.
 - main 변경·GitHub 병합·Pages 배포·실제 Supabase/외부 설정 변경은 사전 승인 없이 하지 않는다. codex-dev를 배포 브랜치로 자동 연결하지 않는다.
 - SQL은 `supabase/migrations/`의 새 파일로 작성한다. 과거 버전 SQL 수정/일괄 실행 대신 사전조건·위험·적용·검증·복구를 문서화한다.
 - 사용자의 최신 8단계 백로그는 docs/BACKLOG.md. 1차 관리자 NULL/XSS와 2차 곡 입력/privacy RLS/환경별 로그인 정책을 로컬 검증했다. 이후도 작은 단위로 진행한다.
@@ -55,3 +55,9 @@
 - 사용자가 06 무결성 결과를 확인했다. Auth-only 계정은 보존하며 회원→Auth FK/탈퇴 정책은 별도 판단한다. 실제 함수 본문/정책·Auth 서비스 확인과 실제 적용 승인은 계속 필요하다.
 - 202610230000_joint_singer_prerequisites.sql은 강화된 선행 구조다. 승인 후 순서는 000 → 원본 001 → 002 → 003 → 004. 옛 JOINT 단독 적용은 금지한다. 상세는 docs/SECURITY_PREREQUISITE_07.md.
 - npm run rehearse:prerequisite는 합성 PGlite에서 파일별 COMMIT 경계까지 검사한다. 실제 DB/Edge에 접속하지 않는다. 신규 postcheck 07은 승인된 000 적용 이후에만 실행한다.
+
+## 8차 Free 백업 준비
+- docs/FREE_SUPABASE_BACKUP_WINDOWS_08.md는 공식 CLI v2.122.0의 Windows 설치·숨김 비밀번호 입력·schema/data/roles/Auth 범위·추가 보관·무결성/격리 복원 절차다. 실제 백업 생성/Windows 실행/실데이터 복원은 미완료다.
+- 백업은 사용자 PC의 Git/동기화 폴더 밖 비공개 경로에만 저장한다. DB URL/비밀번호/덤프/Auth 행/Edge secret은 Codex·GitHub·채팅으로 보내지 않는다. 소스 bundle은 DB 백업이 아니다.
+- 관리 auth/storage schema의 custom trigger/RLS와 Storage 실제 파일·Edge 배포본·Auth 설정/비밀값은 별도 범위를 확인한다. 전체 관리 schema reference를 통째로 복원하지 않는다.
+- 다음 9차는 실제 백업 파일/hash·분리된 복원/데이터·권한 확인과 별도 사용자 승인 이후다. 000~004/실제 DB/Edge/Pages는 계속 미변경한다.

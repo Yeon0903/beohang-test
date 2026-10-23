@@ -50,3 +50,10 @@
 
 ## 최신 확인과 5차 검증
 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. b33e5d9까지 코드 보존 push 완료 기록이며 main/Pages/Supabase 변경은 별도 승인 범위다. 5차 격리 DB·offline Chromium 결과는 실제 staging 검증으로 대체하지 않는다. 실제 구조 조회/공유와 SQL→Edge→프런트의 상세 순서는 LIVE_SCHEMA_REHEARSAL_05.md 참조.
+
+## Free 테스트 프로젝트 백업 (8차)
+- 자동 백업 UI에 의존하지 않고 공식 CLI로 사용자 PC에 export한다. 절차: FREE_SUPABASE_BACKUP_WINDOWS_08.md. 저장 위치는 `%LOCALAPPDATA%\VirHang\backups\날짜-시간`, Git/OneDrive 밖·사용자/SYSTEM 전용 ACL·암호화 보관이다.
+- 실제 접속 URL/비밀번호는 사용자 PC의 입력/일시적 프로세스 환경만 사용한다. Codex·채팅·Git/Actions·스크린샷에 전달하지 않는다. DB link/push/reset/pull이나 migration을 백업 명령으로 사용하지 않는다.
+- SQL/Auth 백업과 별개로 Storage 바이트·실제 Edge 소스/config/secrets·Auth 설정·관리 스키마 custom trigger/RLS·암호화 root key 범위를 확인한다. 앱 회원 role은 data.sql, custom PostgreSQL role은 roles.sql이며 role 비밀번호는 제외된다.
+- 복원은 빈 별도 로컬 Supabase·localhost·외부 통신 차단·DB 외 서비스 중지 후에만 준비한다. 원격 대상 복원이나 000~004 적용은 이번에 승인되지 않았다. 실데이터 복원 환경은 평소 개발 환경/최고관리자 공격 테스트와 분리한다.
+- 현재는 절차 작성/기존 코드 회귀검증까지이며 실제 DB export/Windows 실행/실데이터 복원은 미수행이다. 9차 진행은 실제 백업·복원 확인과 별도 적용 승인 이후다.

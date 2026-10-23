@@ -1,6 +1,6 @@
 # VirHang V3.0 현재 상태
 
-갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 7차 강화된 선행 migration 구현·격리 검증.
+갱신: 2026-10-24 KST · 개발 브랜치: codex-dev · 단계: 8차 Free Supabase 비공개 PC 백업 절차 준비.
 
 사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
 
@@ -61,3 +61,10 @@
 - 저장소 signup trigger는 이메일 확인 전 Auth INSERT 시 username이 있으면 viewer 생성, 없으면 Auth-only 유지. 이메일 인증 UPDATE는 profile을 생성하지 않는다. 해당 소스 동작을 테스트했으며 실제 원격 trigger 본문/메일/Auth는 미검증이다.
 - 기존 189개 + 신규 40개 = **229 통과, 실패/skip 0**. npm run check 10개 통과. service_role profile SELECT를 실제 local 권한으로 경유한 이전/현재 Edge handler 호환 테스트도 통과(Auth/JWT는 mock).
 - 실제 DB/Edge/Pages는 미변경. 코드 후보의 local 검증은 완료, 실제 적용·원격 JWT/복원 검증·FK/탈퇴·MFA/IP/Auth 직접 경로/감사는 미완료다. 적용/중단/복구/수정 파일은 SECURITY_PREREQUISITE_07.md를 우선 참조한다.
+
+## 8차 Free Supabase 백업 준비
+- 공식 CLI v2.122.0/공식 문서·dump 필터를 확인하고 Windows 10 지원 조건·설치/checksum·PC 전용 숨김 입력·비공개 NTFS 폴더·schema/data/roles 및 Auth 범위·추가 보관·SHA256·localhost 격리 복원 절차를 작성했다. 상세는 FREE_SUPABASE_BACKUP_WINDOWS_08.md.
+- 기본 schema export는 auth/storage 관리 스키마를 제외하지만 기본 data-only는 Auth 데이터를 포함한다. 관리 schema reference/custom 가입 trigger·Storage 실제 파일·Edge 배포본·인증 설정·별도 secret/root key는 별도 확인이 필요하다. 앱 최고관리자 role은 회원 데이터이며 PostgreSQL roles.sql과 다르다.
+- **실제 PC 설치/export/백업 파일 생성/hash 대조/실데이터 복원은 미수행**. Windows 명령은 Windows에서 실행 검증하지 않았다. 소스 백업·합성 테스트를 실제 DB 백업 완료로 표시하지 않는다.
+- 기존 npm test 재검증 **229 통과, 실패/skip 0**, npm run check 10개 통과. 문서만 변경했으며 서비스/UI/000~004·원격 DB/Edge/Pages는 불변이다.
+- 9차는 사용자 PC에서 실제 백업·추가 범위 확보·해시/격리 복원 검증을 마치고 실제 적용 승인을 받은 뒤 진행한다. 추천 추론 수준 High.
