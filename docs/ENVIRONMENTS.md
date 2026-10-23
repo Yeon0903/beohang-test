@@ -47,3 +47,6 @@
 현재 요청은 배포 영향이 없다는 증거가 있는 codex-dev push만 허용한다. Pages source 조회가 거부되어 이번에는 push 보류. workflow 폴더 404는 외부 연동 부재 증명이 아니다. 실제 DB/Edge/Pages는 미변경이다.
 
 기존 로그인 Edge 유지 → SQL/함수 사전조건 검증 → 승인된 001~004 → staging 정책/서버 환경 일치 확인 → 후보 Edge 검증 → 활성 Edge 전환 → 프런트 별도 승인 순서로 준비한다. 새 Edge를 policy RPC보다 먼저 활성화하면 503이 발생하므로 금지한다. 상세/중단·복구는 STAGING_ROLLOUT_03.md 참조.
+
+## 최신 확인과 5차 검증
+사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. b33e5d9까지 코드 보존 push 완료 기록이며 main/Pages/Supabase 변경은 별도 승인 범위다. 5차 격리 DB·offline Chromium 결과는 실제 staging 검증으로 대체하지 않는다. 실제 구조 조회/공유와 SQL→Edge→프런트의 상세 순서는 LIVE_SCHEMA_REHEARSAL_05.md 참조.

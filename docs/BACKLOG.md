@@ -93,3 +93,10 @@
 - [ ] Pages/외부 CI 배포 영향 확인 후 codex-dev push (미확인으로 보류).
 - [ ] 생성한 복구 ZIP/SHA256의 환경 밖 보관. 지정 첨부 경로 접근 불가로 다운로드 전달은 미완료.
 - [ ] 실제 schema/정책·기본 baseline 확보, 격리 복원·Deno/PostgREST·브라우저 rehearsal 및 적용 승인.
+
+## 5차 실행 검증
+- [x] security_preflight_03 읽기 전용 재검토 및 함수 설정값 출력 제거.
+- [x] 공유용 단일 catalog JSON·소스 계약 비교 도구(컬럼/인자/반환형/트리거/권한, DB 접속 없음).
+- [x] 실제 migration 파일 001~004 적용 예행: 합성 8개 테이블 행 보존·기존 최고관리자 role·Edge 전환 순서·실패 rollback 검증.
+- [x] 기존 164개 유지, 총 174개 통과와 별도 offline Chromium smoke 8개 통과.
+- [ ] 실제 테스트 DB의 공유 보고서 수신/비공개 정책·함수·backup/기존 데이터 호환 확인 후 적용 승인.

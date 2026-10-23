@@ -1,13 +1,13 @@
 # VirHang V3.0 현재 상태
 
-갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 3차 보존·staging 적용 전 준비.
+갱신: 2026-10-23 KST · 개발 브랜치: codex-dev · 단계: 5차 격리 DB 적용·브라우저 검증.
 
 사용자 최신 요청을 기준으로 `BACKLOG.md`의 8단계를 관리한다. 기존 앱을 개선하며 main·Pages·실제 Supabase·OAuth 설정은 변경하지 않았다. AGENTS의 최초 읽기 전용 분석 단계는 끝났고 현재 요청은 코드 수정/로컬 테스트를 허용한다.
 
 | 영역 | 상태 | 근거/한계 |
 |---|---|---|
 | 관리자 NULL/미인증/프로필 없음 차단 | 새 migration 작성, 로컬 검증 | `202610230001_admin_null_guards.sql`, in-memory PostgreSQL. 실제 DB 적용 전에는 서버가 수정된 것이 아님 |
-| 이미지 XSS | 코드 수정, 로컬 DOM 검증 | app.js safeImage/artLayer/배경·심벌/SVG escape. 실제 브라우저 및 배포 후 검증 대기 |
+| 이미지 XSS | 코드 수정, 로컬 DOM·Chromium 검증 | app.js safeImage/artLayer/배경·심벌/SVG escape. 오프라인 Chromium에서 주입 차단 확인, 실제 배포 후 검증 대기 |
 | 관리자 정상 관리 동작 | 로컬 회귀검증 | admin/super_admin 승인·해제, 가수 연결/해제, 권한 철회, track ID/credit 보존 |
 | RLS | 일부 로컬 검증 | 기존 SQL + 최소 fixture에서 소유자·공동 가수 수정 허용/일반회원 거부. 실제 users 스키마·정책 누락으로 전체 보안 완료 아님 |
 | 서버 곡 입력·삭제·privacy RLS | 새 002/003 작성, 로컬 검증 | 직접 DELETE 차단·타회원/프로필 없음 거부·공동 가수 보존. 실제 DB 미적용 |
@@ -37,3 +37,10 @@
 - 기존 서비스 JS/CSS/001~004 migration은 불변. 적용·중단·복구 절차는 STAGING_ROLLOUT_03.md, 보안 잔여 검증은 SECURITY_VALIDATION_MATRIX.md.
 - 독립 복구용 전체 Git bundle/소스 ZIP 생성·검증은 RECOVERY_BACKUP_03.md의 도구 사용. 지정 output 경로 생성이 거부되어 채팅 첨부/다운로드 전달은 환경 제약으로 미완료이며 workspace ZIP 외부 반출 필요.
 - 1단계 전체 완료 아님. 실제 schema/RLS/복원 검증과 IP/Auth 직접 경로·MFA·감사 로그가 남음.
+
+## 4차 보존 확인 및 5차 실행 검증
+- Pages는 사용자가 main/root/branch 배포임을 확인했고 외부 자동 배포 없음도 확인했다. b33e5d9까지 5개 커밋을 codex-dev에 푸시한 이력이 있다. main은 c79ed5f 그대로였다. 이전 문단의 push 보류는 당시 기록이다.
+- 실제 Supabase credentials 없음. 원격 구조 비교는 security_shareable_05.sql의 단일 catalog JSON 수신 후 수행한다. security_preflight_03.sql은 읽기 전용이며 raw proconfig 출력도 제거했다.
+- 합성 격리 DB의 8개 기존 테이블 행 전체를 각 001~004 전후 비교해 불변 확인. 최고관리자 role 유지, 이전 Edge의 각 단계 200, 새 Edge의 잘못된 순서/환경 503·올바른 전환 200 재현(Auth는 mock).
+- 기존 164개 + 신규 10개 = **174 통과, 0 실패/skip**. 실제 Chromium의 외부 연결 차단 smoke 8개도 통과, 페이지 오류 0.
+- 실제 배포/DB 변경은 하지 않음. baseline 누락·원격 정책/함수·데이터/백업·실제 Auth/Deno 확인 전에는 적용 준비 완료가 아니다. 정확한 SQL Editor 순서는 LIVE_SCHEMA_REHEARSAL_05.md 참조.

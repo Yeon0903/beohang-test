@@ -28,3 +28,9 @@
 - [x] 기존 백업 9개 체크섬과 bundle 확인, 전체 이력 bundle의 독립 clone 검증 도구 준비.
 - [ ] 생성한 ZIP/SHA256 환경 밖 다운로드·보관 확인. 첨부 경로 권한 문제로 전달 미완료.
 - [ ] Pages/Actions/외부 연동 안전 확인 및 실제 DB/복원/Edge/브라우저 검증.
+
+## 5차 실제 실행 범위
+- [x] 001~004 불변·격리 DB 각 단계의 기존 행 전체 불변·super_admin role 유지 검증.
+- [x] 이전 Edge/새 Edge와 실제 local SQL RPC를 연결해 배포 순서 검증(Auth/JWT는 mock).
+- [x] 실제 Chromium offline smoke 8개, node 자동 테스트 174개 통과.
+- [ ] 공유용 live catalog 보고서 대조 및 실제 JWT/PostgREST/Deno/브라우저/YouTube 검증.

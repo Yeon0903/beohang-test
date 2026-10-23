@@ -8,7 +8,7 @@
 
 ## 현재 개발 합의 (2026-10-23 사용자 요청 반영)
 - 코드/문서/테스트 수정과 로컬 검증은 허용. **개발은 codex-dev 브랜치에서만** 진행하며, 변경 전 현재 브랜치와 작업 내용을 확인한다.
-- 최신 3차 요청: Pages와 Actions/외부 연동이 codex-dev push로 배포되지 않는다고 확인된 경우에만 검사 후 codex-dev push 허용. 미확인/영향 가능 시 push하지 않고 독립 복구 백업으로 보존한다. main merge/배포/실제 DB 변경은 여전히 승인 전 금지.
+- 사용자가 Pages=main/root 및 codex-dev 외부 자동 배포 없음 확인. 검증/비밀정보 검사 후 codex-dev 코드 보존 push는 허용된 이력이 있다. main merge/Pages·Edge 배포/실제 DB 변경은 여전히 승인 전 금지. 현재 5차는 실제 구조 대조·격리 rehearsal에 집중한다.
 - main 변경·GitHub 병합·Pages 배포·실제 Supabase/외부 설정 변경은 사전 승인 없이 하지 않는다. codex-dev를 배포 브랜치로 자동 연결하지 않는다.
 - SQL은 `supabase/migrations/`의 새 파일로 작성한다. 과거 버전 SQL 수정/일괄 실행 대신 사전조건·위험·적용·검증·복구를 문서화한다.
 - 사용자의 최신 8단계 백로그는 docs/BACKLOG.md. 1차 관리자 NULL/XSS와 2차 곡 입력/privacy RLS/환경별 로그인 정책을 로컬 검증했다. 이후도 작은 단위로 진행한다.
@@ -44,3 +44,7 @@
 2. 최초 분석은 완료. 이후 기능별 구현 범위와 위험/변경 파일 목록을 먼저 제시하고 사용자 승인 범위 안에서 수정한다.
 3. 기능별 작은 변경, Git 커밋, 테스트 결과와 남은 이슈 보고.
 4. 개발 환경에서 확인한 변경만 승인 후 운영 환경에 반영.
+
+## 검증 도구 (5차)
+- npm run rehearse는 합성 PGlite 전용, npm run test:browser는 모든 앱 요청을 가로채는 offline Chromium 전용이다. 실제 Supabase/Auth/YouTube를 검증했다고 표시하지 않는다.
+- 실제 구조 공유는 security_shareable_05.sql의 단일 JSON만 사용하고 work/live-schema-report.json 같은 비추적 경로에 보관한다. 실제 회원 행/함수 본문/secret을 수집·공개하지 않는다.
