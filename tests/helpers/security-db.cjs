@@ -5,7 +5,7 @@ const sql=name=>readFileSync(path.join(root,name),'utf8');
 const id=n=>`10000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 const users={admin:id(1),superadmin:id(2),viewer:id(3),streamer:id(4),profileless:id(5),nullrole:id(6),contributor:id(7),outsider:id(8)};
 const track=id(100),legacyTrack=id(101),event=id(200);
-async function fixture(){
+async function fixture({applyPatches=true}={}){
  const db=new PGlite();
  await db.exec(`
  CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN; CREATE ROLE service_role NOLOGIN BYPASSRLS;
@@ -34,7 +34,7 @@ async function fixture(){
  await db.query("INSERT INTO public.virhang_rank_listens(id,user_id,track_id,started_at,finished_at) VALUES($1,$2,$3,now()-interval '1 minute',now())",[event,users.viewer,track]);
  await db.query("INSERT INTO public.virhang_account_libraries(user_id,likes,playlists) VALUES($1,'[]','[{\"id\":\"fixture\",\"name\":\"비공개\",\"ids\":[]}]')",[users.viewer]);
  await db.exec('CREATE POLICY legacy_open_libraries ON public.virhang_account_libraries FOR ALL TO authenticated USING(true) WITH CHECK(true)');
- for(const file of ['202610230001_admin_null_guards.sql','202610230002_track_validation_and_soft_delete.sql','202610230003_profile_and_library_privacy.sql','202610230004_environment_login_policy.sql'])await db.exec(sql('supabase/migrations/'+file));
+ if(applyPatches)for(const file of ['202610230001_admin_null_guards.sql','202610230002_track_validation_and_soft_delete.sql','202610230003_profile_and_library_privacy.sql','202610230004_environment_login_policy.sql'])await db.exec(sql('supabase/migrations/'+file));
  return {
  db,users,track,legacyTrack,event,
  async actor(role,user,fn){

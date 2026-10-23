@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "tables": {
+    "public.virhang_users": {
+      "id": "uuid",
+      "username": "text",
+      "display_name": "text",
+      "role": "text",
+      "updated_at": "timestamp with time zone"
+    },
+    "public.virhang_account_libraries": {
+      "user_id": "uuid",
+      "likes": "jsonb",
+      "playlists": "jsonb",
+      "updated_at": "timestamp with time zone"
+    },
+    "public.virhang_published_tracks": {
+      "id": "uuid",
+      "created_by": "uuid",
+      "created_at": "timestamp with time zone",
+      "updated_at": "timestamp with time zone",
+      "title": "text",
+      "singer": "text",
+      "album": "text",
+      "platform": "text",
+      "source_url": "text",
+      "artwork_url": "text",
+      "genre": "text",
+      "details": "text[]",
+      "song_type": "text",
+      "description": "text",
+      "lyrics": "text",
+      "original_url": "text",
+      "is_deleted": "boolean",
+      "deleted_at": "timestamp with time zone"
+    },
+    "public.virhang_artist_identities": {
+      "artist_key": "text",
+      "display_name": "text",
+      "verified_user_id": "uuid",
+      "verified_by": "uuid",
+      "verified_at": "timestamp with time zone"
+    },
+    "public.virhang_song_singers": {
+      "track_id": "uuid",
+      "artist_key": "text"
+    },
+    "public.virhang_rank_listens": {
+      "id": "uuid",
+      "user_id": "uuid",
+      "track_id": "uuid",
+      "started_at": "timestamp with time zone",
+      "finished_at": "timestamp with time zone"
+    }
+  },
+  "optionalTables": [
+    "public.virhang_login_attempts",
+    "virhang_private.login_security",
+    "virhang_private.login_attempts",
+    "public.virhang_tracks",
+    "public.virhang_usernames",
+    "public.virhang_playlists"
+  ],
+  "functions": {
+    "public.virhang_admin_streamer_account(text,text)": true,
+    "public.virhang_admin_link_artist(text,text,text)": true,
+    "public.virhang_sync_song_singers()": true,
+    "public.virhang_can_publish()": true,
+    "public.virhang_can_manage_published_track(uuid,uuid)": true,
+    "public.virhang_my_profile()": true,
+    "public.virhang_my_manageable_track_ids()": true,
+    "public.virhang_rank_start(uuid)": true,
+    "public.virhang_rank_finish(uuid)": true,
+    "public.virhang_rank_get(text)": true,
+    "public.virhang_create_profile_on_signup()": true,
+    "public.virhang_check_login_limit(text)": false,
+    "public.virhang_login_policy()": false,
+    "public.virhang_validate_track_write()": false,
+    "public.virhang_has_valid_profile()": false
+  },
+  "triggers": {
+    "virhang_v26_auth_signup_profile": "auth.users",
+    "virhang_song_singers_sync": "public.virhang_published_tracks",
+    "virhang_validate_track_write": "public.virhang_published_tracks"
+  },
+  "arguments": {
+    "public.virhang_admin_streamer_account(text,text)": [
+      "p_username",
+      "p_action"
+    ],
+    "public.virhang_admin_link_artist(text,text,text)": [
+      "p_artist_name",
+      "p_username",
+      "p_action"
+    ],
+    "public.virhang_sync_song_singers()": [],
+    "public.virhang_can_publish()": [],
+    "public.virhang_can_manage_published_track(uuid,uuid)": [
+      "p_track_id",
+      "p_owner_id"
+    ],
+    "public.virhang_my_profile()": [],
+    "public.virhang_my_manageable_track_ids()": [],
+    "public.virhang_rank_start(uuid)": [
+      "p_track_id"
+    ],
+    "public.virhang_rank_finish(uuid)": [
+      "p_event_id"
+    ],
+    "public.virhang_rank_get(text)": [
+      "p_mode"
+    ],
+    "public.virhang_create_profile_on_signup()": [],
+    "public.virhang_check_login_limit(text)": [
+      "p_username"
+    ],
+    "public.virhang_login_policy()": [],
+    "public.virhang_validate_track_write()": [],
+    "public.virhang_has_valid_profile()": []
+  },
+  "returns": {
+    "public.virhang_admin_streamer_account(text,text)": "TABLE(username text, display_name text, role text)",
+    "public.virhang_admin_link_artist(text,text,text)": "text",
+    "public.virhang_sync_song_singers()": "trigger",
+    "public.virhang_can_publish()": "boolean",
+    "public.virhang_can_manage_published_track(uuid,uuid)": "boolean",
+    "public.virhang_my_profile()": "TABLE(username text, display_name text, role text)",
+    "public.virhang_my_manageable_track_ids()": "TABLE(track_id uuid)",
+    "public.virhang_rank_start(uuid)": "uuid",
+    "public.virhang_rank_finish(uuid)": "boolean",
+    "public.virhang_rank_get(text)": "TABLE(track_id uuid, score bigint)",
+    "public.virhang_create_profile_on_signup()": "trigger",
+    "public.virhang_check_login_limit(text)": "boolean",
+    "public.virhang_login_policy()": "jsonb",
+    "public.virhang_validate_track_write()": "trigger",
+    "public.virhang_has_valid_profile()": "boolean"
+  },
+  "triggerFunctions": {
+    "virhang_v26_auth_signup_profile": "public.virhang_create_profile_on_signup()",
+    "virhang_song_singers_sync": "public.virhang_sync_song_singers()",
+    "virhang_validate_track_write": "public.virhang_validate_track_write()"
+  },
+  "triggerTypes": {
+    "virhang_v26_auth_signup_profile": 5,
+    "virhang_song_singers_sync": 21,
+    "virhang_validate_track_write": 23
+  }
+}

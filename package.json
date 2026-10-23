@@ -5,13 +5,16 @@
   "description": "VirHang local security regression tests; no deploy or remote DB scripts",
   "scripts": {
     "test": "node --test --test-isolation=none tests/*.test.cjs",
-    "check": "node scripts/check.cjs"
+    "check": "node scripts/check.cjs",
+    "test:browser": "node scripts/browser-smoke.cjs",
+    "rehearse": "node scripts/rehearse-migrations.cjs"
   },
   "engines": {
     "node": ">=22.8.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.3.14",
-    "jsdom": "26.1.0"
+    "jsdom": "26.1.0",
+    "playwright-core": "1.62.1"
   }
 }

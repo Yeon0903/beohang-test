@@ -29,7 +29,9 @@ SELECT grantee,table_schema,table_name,column_name,privilege_type
 FROM information_schema.column_privileges
 WHERE table_schema IN ('public','virhang_private') AND grantee IN ('PUBLIC','anon','authenticated') ORDER BY 2,3,4,1;
 SELECT p.oid::regprocedure::text AS signature,pg_get_userbyid(p.proowner) AS owner,
- p.prosecdef AS security_definer,p.proconfig,
+ p.prosecdef AS security_definer,
+ COALESCE('search_path=""'=ANY(p.proconfig),false) AS empty_search_path,
+ EXISTS(SELECT 1 FROM unnest(p.proconfig) AS cfg WHERE cfg NOT LIKE 'search_path=%') AS other_settings_present,
  has_function_privilege('anon',p.oid,'EXECUTE') AS anon_execute,
  has_function_privilege('authenticated',p.oid,'EXECUTE') AS authenticated_execute,
  has_function_privilege('service_role',p.oid,'EXECUTE') AS service_execute
